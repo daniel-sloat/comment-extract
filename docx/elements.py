@@ -1,4 +1,4 @@
-from .ooxml_ns import *
+from .ooxml_ns import ns
 from .baseelement import BaseDOCXElement
 
 
@@ -14,6 +14,19 @@ class TextElement(BaseDOCXElement):
             f"{'...' if self.text and len(self.text) > disp else ''}"
             f"')"
         )
+
+    @property
+    def text(self):
+        return self.element.xpath("string(.)")
+
+
+class Bubble(TextElement):
+    def __init__(self, element):
+        super().__init__(element)
+
+    @property
+    def paragraphs(self):
+        return [Paragraph(el) for el in self.element.xpath("w:p", **ns)]
 
 
 class Paragraph(TextElement):
@@ -33,6 +46,41 @@ class Paragraph(TextElement):
         return self.element.xpath("string(w:pPr/w:pStyle/@w:val)", **ns)
 
 
+class CommentParagraph(Paragraph):
+    def __init__(self, element, _id):
+        super().__init__(element)
+        self._id = _id
+        
+    @property
+    def text(self):
+        return "".join(run.text for run in self.runs)
+
+    @property
+    def runs(self):
+        def get_runs(children):
+            select_runs = []
+            for child in children:
+                if child.xpath("*", **ns):
+                    select_runs.append(Run(child))
+                elif child.xpath(f"self::w:commentRangeEnd[@w:id={self._id}]", **ns):
+                    break
+            return select_runs
+
+        para_elements = (el for el in self.element.xpath("*", **ns))
+        comment_start_paragraph = self.element.xpath(
+            f"boolean(w:commentRangeStart[@w:id={self._id}])", **ns
+        )
+
+        if comment_start_paragraph:
+            for element in para_elements:
+                if element.xpath(
+                    f"boolean(self::w:commentRangeStart[@w:id={self._id}])", **ns
+                ):
+                    return get_runs(para_elements)
+        else:
+            return get_runs(para_elements)
+
+
 class Run(TextElement):
     def __init__(self, element):
         super().__init__(element)
@@ -49,6 +97,3 @@ class Run(TextElement):
 class PropElement(BaseDOCXElement):
     def __init__(self, element):
         self.element = element
-
-    def __repr__(self):
-        return f"PropElement(tag={self.tag})"

@@ -1,6 +1,6 @@
 {
 	"name": "Python 3",
-	"image": "mcr.microsoft.com/devcontainers/python:3.10-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
 			"version": "lts"
@@ -38,6 +38,8 @@
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"ms-python.python",
+				"tamasfe.even-better-toml",
+				"dotjoshjohnson.xml",
 				"ms-python.vscode-pylance"
 			]
 		}

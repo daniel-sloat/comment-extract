@@ -1,4 +1,5 @@
 from ..baseelement import BaseDOCXElement
+from ..ooxml_ns import ns
 
 
 class StyleElement(BaseDOCXElement):
@@ -21,7 +22,7 @@ class StyleElement(BaseDOCXElement):
 
     @property
     def _name(self):
-        return self.child.get("name").attrib.get("val")
+        return self.element.xpath("string(w:name/@w:val)", **ns)
 
     @property
     def _type(self):
@@ -29,4 +30,4 @@ class StyleElement(BaseDOCXElement):
 
     @property
     def _basedon(self):
-        return el.attrib.get("val") if (el := self.child.get("basedOn")) else ""
+        return self.element.xpath("string(w:basedOn/@w:val)", **ns)

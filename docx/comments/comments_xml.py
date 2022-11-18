@@ -1,20 +1,19 @@
 from .comment_data import CommentMetaData
-from ..ooxml_ns import *
+from ..ooxml_ns import ns
 
 
 class CommentsXML:
     def __init__(self, document):
         self._doc = document
 
-    @property
-    def _comments_xml(self):
-        return self._doc.xml.get("word/comments.xml")
+    def __getitem__(self, key):
+        return self.metadata[key]
 
     @property
     def metadata(self):
-        if self._comments_xml is not None:
-            return [
-                CommentMetaData(element)
-                for element in self._comments_xml.xpath("w:comment", **ns)
-            ]
-        return []
+        if (xml := self._doc.xml.get("word/comments.xml")) is not None:
+            return {
+                el.xpath("string(@w:id)", **ns): CommentMetaData(el)
+                for el in xml.xpath("w:comment", **ns)
+            }
+        return {}

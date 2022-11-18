@@ -5,7 +5,7 @@ DELIMITER = "-"
 
 class FileNameParser:
     def __init__(self, filename):
-        self.path = Path(filename)
+        self.path = filename
         self.doc_number, self.commenter_code = self._partition_filename("-")
 
     def _partition_filename(self, delimiter):
