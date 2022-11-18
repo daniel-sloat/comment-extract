@@ -1,3 +1,4 @@
+from functools import cache
 from .comment_data import CommentMetaData
 from ..ooxml_ns import ns
 
@@ -9,7 +10,7 @@ class CommentsXML:
     def __getitem__(self, key):
         return self.metadata[key]
 
-    @property
+    @cache
     def metadata(self):
         if (xml := self._doc.xml.get("word/comments.xml")) is not None:
             return {

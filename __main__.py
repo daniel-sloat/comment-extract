@@ -24,9 +24,8 @@ def main():
     for document in documents_in_folder(config["folder_path"]):
         doc = Document(document)
         comments = doc.comments
-        print(comments.ancestors)
-    #     comment_record.append(comments)
-    # comment_record.to_excel("output/comments.xlsx", **config)
+        comment_record.append(comments)
+    comment_record.to_excel("output/comments.xlsx", **config)
 
 
 if __name__ == "__main__":

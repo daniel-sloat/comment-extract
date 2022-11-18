@@ -1,5 +1,7 @@
 """Comment data containers"""
 
+from lxml import etree
+from dataclasses import dataclass
 from ..baseelement import BaseDOCXElement
 from ..elements import CommentParagraph, Bubble
 from ..ooxml_ns import ns
@@ -13,32 +15,47 @@ class CommentMetaData(BaseDOCXElement):
     @property
     def para_id(self):
         return self.element.xpath("string(w:p[last()]/@w14:paraId)", **ns)
+    
+# @dataclass
+# class CommentMetaData:
+#     element: etree._Element
+    
+#     def __post_init__(self):
+#         self._id = self.element.xpath("string(@w:id)", **ns)
+#         self.bubble = Bubble(self.element)
+#         self.para_id = self.element.xpath("string(w:p[last()]/@w14:paraId)", **ns)
 
 
+@dataclass
 class CommentBounds:
-    def __init__(self, start, end):
-        self.start = start
-        self.end = end
+    start: etree._Element
+    end: etree._Element
 
-    def __repr__(self):
-        return f"CommentBounds(_id='{self._id}')"
+    def __post_init__(self):
+        self._id = self.start.xpath("string(@w:id)", **ns)
 
-    @property
-    def _id(self):
-        return self.start.xpath("string(@w:id)", **ns)
-
-    @property
-    def last_para_id(self):
-        return self.end.xpath(
-            "string((parent::w:p|preceding-sibling::w:p[1])/@w14:paraId)", **ns
-        )
+    # @property
+    # def last_para_id(self):
+    #     return self.end.xpath(
+    #         "string((parent::w:p|preceding-sibling::w:p[1])/@w14:paraId)", **ns
+    #     )
 
 
 class Comment:
     def __init__(
-        self, filename, start, end, _id, bubble, author="", date="", initials=""
+        self,
+        # filename,
+        *,
+        start,
+        end,
+        _id,
+        bubble,
+        author="",
+        date="",
+        initials="",
+        **kwargs,
     ):
-        self.filename = filename
+        # self.filename = filename
         self._start = start
         self._end = end
         self._id = _id
@@ -48,7 +65,11 @@ class Comment:
         self.bubble = bubble
 
     def __repr__(self):
-        return f"Comment(file='{self.filename}',_id='{self._id}')"
+        return f"Comment(_id='{self._id}',text='{self.text}')"
+
+    @property
+    def text(self):
+        return "".join(run.text for para in self.paragraphs for run in para.runs)
 
     @property
     def paragraphs(self):
