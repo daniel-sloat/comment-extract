@@ -1,5 +1,7 @@
 import xlsxwriter
 
+from pathlib import Path
+
 
 def create_formats(
     workbook: xlsxwriter.Workbook, run: list[str, str]
@@ -162,6 +164,8 @@ def create_workbook(
             Defaults to r"output/workbook.xlsx".
         sheet_name (str, optional): Name of sheet. Defaults to "Comments".
     """
+    path = Path(workbook_savepath)
+    path.parent.mkdir(exist_ok=True)
     workbook = xlsxwriter.Workbook(workbook_savepath)
     worksheet = workbook.add_worksheet(sheet_name)
     worksheet.add_write_handler(list, write_rich_list)
