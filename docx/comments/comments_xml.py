@@ -14,7 +14,7 @@ class CommentsXML:
     def metadata(self):
         if (xml := self._doc.xml.get("word/comments.xml")) is not None:
             return {
-                el.xpath("string(@w:id)", **ns): CommentMetaData(el)
+                el.xpath("string(@w:id)", **ns): CommentMetaData(el).asdict()
                 for el in xml.xpath("w:comment", **ns)
             }
         return {}

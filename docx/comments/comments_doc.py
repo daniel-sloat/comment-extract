@@ -16,7 +16,7 @@ class CommentsDocument:
         )
 
     @cached_property
-    def comment_bounds(self):                    
+    def comment_bounds(self):
         starts = {
             element.xpath("string(@w:id)", **ns): element
             for element in self.comment_range_elements
@@ -27,7 +27,7 @@ class CommentsDocument:
             for element in self.comment_range_elements
             if element.xpath("self::w:commentRangeEnd", **ns)
         }
-        return {_id: CommentBounds(starts[_id], ends[_id]) for _id in starts}
+        return {_id: CommentBounds(starts[_id], ends[_id]).asdict() for _id in starts}
 
     # @property
     # def comment_runs_inside(self):

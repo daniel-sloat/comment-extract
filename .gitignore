@@ -3,3 +3,4 @@ input/
 output/
 config.toml
 *.log
+.env

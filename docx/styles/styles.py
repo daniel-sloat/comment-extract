@@ -19,9 +19,10 @@
     be based on another style - and so on until the 'base style'.
 """
 
-from ..ooxml_ns import ns
-from .style_element import StyleElement
-from ..elements import PropElement
+from collections import ChainMap
+from docx.ooxml_ns import ns
+from docx.styles.style_element import StyleElement
+from docx.elements import PropElement
 
 
 class Styles:
@@ -36,7 +37,7 @@ class Styles:
         return self.styles[key]
 
     def __iter__(self):
-        return iter(self.styles.values())
+        return iter(self.styles.items())
 
     @property
     def styles(self):
@@ -46,15 +47,29 @@ class Styles:
         }
 
     @property
+    def inherited_styles(self):
+        st = {}
+        for name, style in self.styles.items():
+            para_props = {}
+            run_props = {}
+            while style.basedon:
+                para_props |= self.styles[style.basedon]._paragraph
+                run_props |= self.styles[style.basedon]._run
+                following_style = self.styles[style.basedon].basedon
+                style.basedon = following_style
+            st[name] = {"para": para_props, "run": run_props}
+        return st
+
+    @property
     def doc_default_props_para(self):
-        return [
-            PropElement(el)
+        return {
+            (element := PropElement(el)).tag: element.attrib
             for el in self._style_xml.xpath("w:docDefaults/w:pPrDefault/w:pPr/*", **ns)
-        ]
+        }
 
     @property
     def doc_default_props_run(self):
-        return [
-            PropElement(el)
+        return {
+            (element := PropElement(el)).tag: element.attrib
             for el in self._style_xml.xpath("w:docDefaults/w:rPrDefault/w:rPr/*", **ns)
-        ]
+        }

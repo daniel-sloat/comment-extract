@@ -1,10 +1,9 @@
 """Comment data containers"""
 
 from lxml import etree
-from dataclasses import dataclass
-from ..baseelement import BaseDOCXElement
-from ..elements import CommentParagraph, Bubble
-from ..ooxml_ns import ns
+from docx.baseelement import BaseDOCXElement
+from docx.elements import CommentParagraph, Bubble
+from docx.ooxml_ns import ns
 
 
 class CommentMetaData(BaseDOCXElement):
@@ -15,47 +14,35 @@ class CommentMetaData(BaseDOCXElement):
     @property
     def para_id(self):
         return self.element.xpath("string(w:p[last()]/@w14:paraId)", **ns)
-    
-# @dataclass
-# class CommentMetaData:
-#     element: etree._Element
-    
-#     def __post_init__(self):
-#         self._id = self.element.xpath("string(@w:id)", **ns)
-#         self.bubble = Bubble(self.element)
-#         self.para_id = self.element.xpath("string(w:p[last()]/@w14:paraId)", **ns)
+
+    def asdict(self):
+        return {
+            **self.attrib,
+            "bubble": self.bubble,
+            "para_id": self.para_id,
+        }
 
 
-@dataclass
 class CommentBounds:
-    start: etree._Element
-    end: etree._Element
+    def __init__(self, start, end):
+        self.start: etree._Element = start
+        self.end: etree._Element = end
 
-    def __post_init__(self):
-        self._id = self.start.xpath("string(@w:id)", **ns)
+    @property
+    def _id(self):
+        return self.start.xpath("string(@w:id)", **ns)
 
-    # @property
-    # def last_para_id(self):
-    #     return self.end.xpath(
-    #         "string((parent::w:p|preceding-sibling::w:p[1])/@w14:paraId)", **ns
-    #     )
+    def asdict(self):
+        return {
+            "start": self.start,
+            "end": self.end,
+        }
 
 
 class Comment:
     def __init__(
-        self,
-        # filename,
-        *,
-        start,
-        end,
-        _id,
-        bubble,
-        author="",
-        date="",
-        initials="",
-        **kwargs,
+        self, start, end, _id, bubble, author="", date="", initials="", **kwargs
     ):
-        # self.filename = filename
         self._start = start
         self._end = end
         self._id = _id
@@ -66,6 +53,9 @@ class Comment:
 
     def __repr__(self):
         return f"Comment(_id='{self._id}',text='{self.text}')"
+
+    def __iter__(self):
+        return iter(self.paragraphs)
 
     @property
     def text(self):

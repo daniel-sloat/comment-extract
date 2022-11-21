@@ -1,11 +1,8 @@
-from .ooxml_ns import ns
-from .baseelement import BaseDOCXElement
+from docx.ooxml_ns import ns
+from docx.baseelement import BaseDOCXElement
 
 
 class TextElement(BaseDOCXElement):
-    def __init__(self, element):
-        super().__init__(element)
-
     def __repr__(self):
         disp = 32
         return (
@@ -21,17 +18,14 @@ class TextElement(BaseDOCXElement):
 
 
 class Bubble(TextElement):
-    def __init__(self, element):
-        super().__init__(element)
-
     @property
     def paragraphs(self):
         return [Paragraph(el) for el in self.element.xpath("w:p", **ns)]
 
 
 class Paragraph(TextElement):
-    def __init__(self, element):
-        super().__init__(element)
+    def __iter__(self):
+        return iter(self.runs)
 
     @property
     def runs(self):
@@ -50,7 +44,7 @@ class CommentParagraph(Paragraph):
     def __init__(self, element, _id):
         super().__init__(element)
         self._id = _id
-        
+
     @property
     def text(self):
         return "".join(run.text for run in self.runs)
@@ -82,9 +76,6 @@ class CommentParagraph(Paragraph):
 
 
 class Run(TextElement):
-    def __init__(self, element):
-        super().__init__(element)
-
     @property
     def props(self):
         return [PropElement(el) for el in self.element.xpath("w:rPr/*", **ns)]
@@ -95,5 +86,4 @@ class Run(TextElement):
 
 
 class PropElement(BaseDOCXElement):
-    def __init__(self, element):
-        self.element = element
+    pass

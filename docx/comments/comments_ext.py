@@ -19,9 +19,9 @@ class CommentsExt:
         d = {}
         for ext in self.exts:
             for _id, data in self._doc.comments.metadata().items():
-                if data.para_id == ext.attrib.get("paraId"):
+                if data["para_id"] == ext.attrib.get("paraId"):
                     for _id2, data2 in self._doc.comments.metadata().items():
-                        if data2.para_id == ext.attrib.get("paraIdParent"):
+                        if data2["para_id"] == ext.attrib.get("paraIdParent"):
                             d[_id] = _id2
 
         e = {}

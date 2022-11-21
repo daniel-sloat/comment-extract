@@ -10,11 +10,7 @@ from comments_section.public_record import CommentRecord
 
 def documents_in_folder(folder_path: str):
     """Returns all docx files in folder."""
-    return (
-        x
-        for x in Path(folder_path).glob("*.docx")
-        if x.is_file()  # and "Transcript" in x.stem
-    )
+    return (x for x in Path(folder_path).glob("*.docx") if x.is_file())
 
 
 @logger_init
@@ -23,9 +19,15 @@ def main():
     comment_record = CommentRecord()
     for document in documents_in_folder(config["folder_path"]):
         doc = Document(document)
-        comments = doc.comments
-        comment_record.append(comments)
-    comment_record.to_excel("output/comments.xlsx", **config)
+        # comments = doc.comments
+        styles = doc.styles
+        for style, props in styles.inherited_styles.items():
+            for k,v in props["run"].items():
+                if "" in k:
+                    print(k)
+    #     print(styles["Heading1"]._para_and_run)
+    #     comment_record.append(comments)
+    # comment_record.to_excel("output/comments.xlsx", **config)
 
 
 if __name__ == "__main__":
