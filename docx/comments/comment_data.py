@@ -41,7 +41,7 @@ class CommentBounds:
 
 class Comment:
     def __init__(
-        self, start, end, _id, bubble, author="", date="", initials="", **kwargs
+        self, *, start, end, _id, bubble, author="", date="", initials="", comments, **attrs,
     ):
         self._start = start
         self._end = end
@@ -50,6 +50,8 @@ class Comment:
         self.date = date
         self.initials = initials
         self.bubble = bubble
+        self._attrs = attrs
+        self._comments = comments
 
     def __repr__(self):
         return f"Comment(_id='{self._id}',text='{self.text}')"
@@ -59,7 +61,7 @@ class Comment:
 
     @property
     def text(self):
-        return "".join(run.text for para in self.paragraphs for run in para.runs)
+        return "\n".join(z for z in ("".join(run.text for run in para.runs) for para in self.paragraphs))
 
     @property
     def paragraphs(self):
@@ -73,12 +75,12 @@ class Comment:
         )[0]
         xpath = (
             "(self::w:p|following-sibling::w:p)"
-            "[(w:r/w:t or w:commentRangeEnd) and not(re:test(string(.),'^\s+$'))]"
+            "[(not(re:test(string(.),'^\s*$')) or w:commentRangeEnd)]"
         )
         paragraphs = (x for x in start_paragraph.xpath(xpath, **ns))
         paras = []
         for para in paragraphs:
-            paras.append(CommentParagraph(para, self._id))
+            paras.append(CommentParagraph(para, self))
             if para == end_paragraph:
                 break
         return paras

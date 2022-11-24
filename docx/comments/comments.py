@@ -7,9 +7,6 @@ from docx.comments.comments_xml import CommentsXML
 
 
 class Comments(CommentsDocument, CommentsXML, CommentsExt):
-    def __init__(self, document):
-        super().__init__(document)
-
     def __repr__(self):
         return f"Comments(file='{self._doc.file}',count={len(self.comments)})"
 
@@ -22,7 +19,11 @@ class Comments(CommentsDocument, CommentsXML, CommentsExt):
     @property
     def comments(self):
         return [
-            Comment(**self.comment_bounds[_id], **self.metadata()[_id])
+            Comment(
+                **self.comment_bounds[_id], 
+                **self.metadata()[_id], 
+                comments=self,
+                )
             for _id in self.comment_bounds
             if _id not in self.ancestors
         ]

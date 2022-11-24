@@ -20,6 +20,7 @@
 """
 
 from collections import ChainMap
+from functools import cached_property
 from docx.ooxml_ns import ns
 from docx.styles.style_element import StyleElement
 from docx.elements import PropElement
@@ -34,10 +35,10 @@ class Styles:
         return f"Styles(file='{self._doc.file}',count={len(self.styles)})"
 
     def __getitem__(self, key):
-        return self.styles[key]
+        return self.styles_map[key]
 
     def __iter__(self):
-        return iter(self.styles.items())
+        return iter(self.styles_map.items())
 
     @property
     def styles(self):
@@ -45,20 +46,6 @@ class Styles:
             element.xpath("string(@w:styleId)", **ns): StyleElement(element)
             for element in self._style_xml.xpath("w:style", **ns)
         }
-
-    @property
-    def inherited_styles(self):
-        st = {}
-        for name, style in self.styles.items():
-            para_props = {}
-            run_props = {}
-            while style.basedon:
-                para_props |= self.styles[style.basedon]._paragraph
-                run_props |= self.styles[style.basedon]._run
-                following_style = self.styles[style.basedon].basedon
-                style.basedon = following_style
-            st[name] = {"para": para_props, "run": run_props}
-        return st
 
     @property
     def doc_default_props_para(self):
@@ -73,3 +60,25 @@ class Styles:
             (element := PropElement(el)).tag: element.attrib
             for el in self._style_xml.xpath("w:docDefaults/w:rPrDefault/w:rPr/*", **ns)
         }
+
+    @cached_property
+    def styles_map(self):
+        inherited_styles = {}
+        for name, style in self.styles.items():
+            based_on_list = [style.basedon]
+            while style.basedon:
+                following_style = self.styles[style.basedon].basedon
+                based_on_list.append(following_style)
+                style.basedon = following_style
+            para_props, run_props = {}, {}
+            for based_on_style in reversed(based_on_list):
+                if based_on_style:
+                    para_props |= self.styles[based_on_style]._paragraph
+                    run_props |= self.styles[based_on_style]._run
+            inherited_styles[name] = {
+                "para": ChainMap(para_props, self.doc_default_props_para), 
+                "run": ChainMap(run_props, self.doc_default_props_run),
+                }
+        return inherited_styles
+
+

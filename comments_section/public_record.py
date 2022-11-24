@@ -12,4 +12,4 @@ class CommentRecord(list):
 
     def to_excel(self, filename, *args, **kwargs):
         xlsx = WriteXLSX(filename, self, "Comments")
-        print(xlsx.comments)
+        xlsx.create_workbook()

@@ -6,8 +6,6 @@ from docx.ooxml_ns import ns
 class StyleElement(BaseDOCXElement):
     def __init__(self, element):
         super().__init__(element)
-        self._combined_para = {}
-        self._combined_run = {}
         self.basedon = self.element.xpath("string(w:basedOn/@w:val)", **ns)
 
     def __repr__(self):
@@ -16,7 +14,6 @@ class StyleElement(BaseDOCXElement):
             f"id='{self._id}'"
             f",name='{self._name}'"
             f",type='{self._type}'"
-            # f",basedon='{self._basedon}'"
             f")"
         )
 
@@ -36,6 +33,10 @@ class StyleElement(BaseDOCXElement):
     def basedon(self):
         return self._basedon
 
+    @basedon.setter
+    def basedon(self, b):
+        self._basedon = b
+
     @property
     def _paragraph(self):
         return {
@@ -49,16 +50,3 @@ class StyleElement(BaseDOCXElement):
             PropElement(el).tag: PropElement(el).attrib
             for el in self.element.xpath("w:rPr/*", **ns)
         }
-
-    @property
-    def _para_and_run(self):
-        return {"para": self._paragraph, "run": self._run}
-
-    @_paragraph.setter
-    def _paragraph(self, d):
-        self._paragraph = d
-
-    @basedon.setter
-    def basedon(self, b):
-        self._basedon = b
-

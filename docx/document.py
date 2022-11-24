@@ -16,9 +16,12 @@ class Document:
 
     def __init__(self, filename):
         self.file = Path(filename)
-        self.comments = Comments(self)
         self.styles = Styles(self)
         self.notes = Notes(self)
+        self.comments = Comments(self)
+
+    def __repr__(self):
+        return f"Document(file='{self.file}')"
 
     @cached_property
     def xml(self):

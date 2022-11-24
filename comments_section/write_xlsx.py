@@ -1,10 +1,11 @@
+from pathlib import Path
 import xlsxwriter as xl
 
 
 class WriteXLSX:
-    def __init__(self, filename, comments, sheetname="Comments", add_columns=False):
+    def __init__(self, filename, comment_record, sheetname="Comments", add_columns=False):
         self.filename = filename
-        self.comments = comments
+        self.comment_record = comment_record
         self.sheetname = sheetname
         self.workbook = xl.Workbook(filename)
         self.worksheet = self.workbook.add_worksheet(self.sheetname)
@@ -37,13 +38,16 @@ class WriteXLSX:
         run = [format, text]
         return run
 
-    @staticmethod
-    def prepared_data(comment):
-        for paragraph in comment.paragraphs:
-            for run in paragraph.comment_runs:
-                yield run
-            if paragraph != comment.paragraphs[-1]:
-                yield ["\n", ""]
+    def prepared_data(self):
+        p = []
+        for comments in self.comment_record:
+            for comment in comments:
+                for paragraph in comment.paragraphs:
+                    for run in paragraph.runs:
+                        p.append(run)
+                    if paragraph != comment.paragraphs[-1]:
+                        p.append(["\n", ""])
+        return p
 
     def set_column_formats(self):
         """Set column width and cell formats"""
@@ -116,7 +120,7 @@ class WriteXLSX:
             .write_header(column_names)
         )
 
-        # for comment_no, comment in enumerate(comments):
+        # for comment_no, comment in enumerate(self.prepared_data()):
         #     row = comment_no + 1
         #     self.worksheet.write(row, 0, row)
         #     for col_num, col_name, data in enumerate(comment.items()):
@@ -128,4 +132,5 @@ class WriteXLSX:
         self.worksheet.autofilter(0, 0, max_row, max_col)
         self.worksheet.freeze_panes(1, 0)
 
+        Path(self.filename).parent.mkdir(exist_ok=True)
         self.workbook.close()
