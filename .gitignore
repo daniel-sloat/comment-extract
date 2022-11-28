@@ -1,0 +1,6 @@
+__pycache__
+.env
+output
+input
+config.toml
+*.log

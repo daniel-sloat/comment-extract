@@ -39,22 +39,22 @@ def add_columns(comment_record):
     new_comment_record = []
     for comment in comment_record:
         comment |= addl_columns
-    
+
         keyorder = [
-                "File Name",
-                "Document Number",
-                "Commenter Code",
-                "Document Comment Number",
-                "Comment Author",
-                "Comment Author Initials",
-                "Comment Date",
-                "Comment Bubble",
-                "Heading 1",
-                "Heading 2",
-                "Heading 3",
-                "Comment Data",
-                "Response",
-            ]
+            "File Name",
+            "Document Number",
+            "Commenter Code",
+            "Document Comment Number",
+            "Comment Author",
+            "Comment Author Initials",
+            "Comment Date",
+            "Comment Bubble",
+            "Heading 1",
+            "Heading 2",
+            "Heading 3",
+            "Comment Data",
+            "Response",
+        ]
         comment = {k: comment[k] for k in keyorder if k in comment}
         new_comment_record.append(comment)
     return new_comment_record
@@ -90,7 +90,9 @@ def create_workbook(
     config_file: dict,
 ) -> None:
     logging.info("Creating workbook...")
-    filename = xl.create_workbook(file_data, add_columns=config_file["response"]["add_columns"])
+    filename = xl.create_workbook(
+        file_data, add_columns=config_file["response"]["add_columns"]
+    )
     logging.info(f"Workbook created: {filename}")
     return None
 
