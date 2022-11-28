@@ -10,7 +10,9 @@ from comments_section.public_record import CommentRecord
 
 def docx_in_folder(folder_path: str):
     """Returns all docx files in folder."""
-    return (x for x in Path(folder_path).glob("*.docx") if x.is_file())# and "LoremIpsum3" in x.stem)
+    return (
+        x for x in Path(folder_path).glob("*.docx") if x.is_file()
+    )
 
 
 @logger_init

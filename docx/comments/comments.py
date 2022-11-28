@@ -20,10 +20,10 @@ class Comments(CommentsDocument, CommentsXML, CommentsExt):
     def comments(self):
         return [
             Comment(
-                **self.comment_bounds[_id], 
-                **self.metadata()[_id], 
+                **self.comment_bounds[_id],
+                **self.metadata()[_id],
                 comments=self,
-                )
+            )
             for _id in self.comment_bounds
             if _id not in self.ancestors
         ]

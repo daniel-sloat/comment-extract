@@ -27,6 +27,7 @@ from docx.elements import PropElement
 
 
 class Styles:
+    
     def __init__(self, document):
         self._doc = document
         self._style_xml = self._doc.xml["word/styles.xml"]
@@ -40,7 +41,7 @@ class Styles:
     def __iter__(self):
         return iter(self.styles_map.items())
 
-    @property
+    @cached_property
     def styles(self):
         return {
             element.xpath("string(@w:styleId)", **ns): StyleElement(element)

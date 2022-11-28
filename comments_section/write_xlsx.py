@@ -1,9 +1,14 @@
+from itertools import groupby
 from pathlib import Path
 import xlsxwriter as xl
 
+# from docx.elements import ExcelRun
+
 
 class WriteXLSX:
-    def __init__(self, filename, comment_record, sheetname="Comments", add_columns=False):
+    def __init__(
+        self, filename, comment_record, sheetname="Comments", add_columns=False
+    ):
         self.filename = filename
         self.comment_record = comment_record
         self.sheetname = sheetname
@@ -11,43 +16,71 @@ class WriteXLSX:
         self.worksheet = self.workbook.add_worksheet(self.sheetname)
         self._add_columns = add_columns
 
-    def create_formats(self, run):
-        """Encodes format-string to xlsxwriter workbook Format."""
-        text, props = run
-        run_format = {}
-        for p in props:
-            match p:
-                case "b":
-                    run_format["bold"] = True
-                case "i":
-                    run_format["italic"] = True
-                case "u":
-                    run_format["underline"] = 1
-                case "w":
-                    run_format["underline"] = 2
-                case "s":
-                    run_format["font_strikeout"] = True
-                case "z":  # No double-strikeout in Excel so strikeout and red text is used.
-                    run_format["font_strikeout"] = True
-                    run_format["font_color"] = "#FF0000"  # #FF0000 = red
-                case "x":
-                    run_format["font_script"] = 1
-                case "v":
-                    run_format["font_script"] = 2
-        format = self.workbook.add_format(run_format)
-        run = [format, text]
-        return run
+    def create_formats(self, run_format):
+        return self.workbook.add_format(run_format)
 
+    # def docx_to_xlsx(self, comment):
+    #     for paragraph in comment.paragraphs:
+    #         newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
+    #         for key_format, group in groupby(
+    #             paragraph.runs, lambda x: x.asdict()
+    #         ):
+                
+
+                # runs = []
+                # for paragraph in comment.paragraphs:
+                #     newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
+                #     for key_format, group in groupby(
+                #         paragraph.runs, lambda x: x.asdict()
+                #     ):
+                #         text_list = []
+                #         for run in group:
+                #             text_list.append(run.text)
+                #         text = "".join(text_list).strip()
+                #         if text:
+                #             g = (self.create_formats(key_format), text)
+                #             runs.extend(g)
+                #         if newline:
+                #             runs.append(newline)
     def prepared_data(self):
         p = []
+        count = 0
         for comments in self.comment_record:
+            path = comments._doc.file
+            doc_comment_count = 0
             for comment in comments:
+                q = {}
+
+                count += 1
+                doc_comment_count += 1
+
+                q["filename"] = path.name
+                q["folder"] = path.parent.name
+                q["comment_count"] = count
+                q["doc_comment_count"] = doc_comment_count
+                q["author"] = comment.author
+                q["initials"] = comment.initials
+                q["date"] = comment.date
+                q["bubble"] = comment.bubble.text
+
+                runs = []
                 for paragraph in comment.paragraphs:
-                    for run in paragraph.runs:
-                        p.append(run)
-                    if paragraph != comment.paragraphs[-1]:
-                        p.append(["\n", ""])
-        return p
+                    newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
+                    for key_format, group in groupby(
+                        paragraph.runs, lambda x: x.asdict()
+                    ):
+                        text_list = []
+                        for run in group:
+                            text_list.append(run.text)
+                        text = "".join(text_list).strip()
+                        if text:
+                            g = (self.create_formats(key_format), text)
+                            runs.extend(g)
+                        if newline:
+                            runs.append(newline)
+                q["runs"] = runs
+                if runs:
+                    yield q
 
     def set_column_formats(self):
         """Set column width and cell formats"""
@@ -102,32 +135,29 @@ class WriteXLSX:
             self.worksheet.write(0, col_num, value, header_format)
         return self
 
-    def write_rich_list(self, row: int, col: int, rich_list):
-        """A write handler rich formatted lists for xlsxwriter."""
-        if len(rich_list) == 2:
-            plain_text = rich_list[1]
-            return self.worksheet.write_string(row, col, plain_text)
+    @staticmethod
+    def write_rich_list(worksheet, row: int, col: int, data):
+        """A write handler for rich formatted lists xlsxwriter."""
+        if len(data) == 2:
+            return worksheet.write_string(row, col, data[1])
         else:
-            return self.worksheet.write_rich_string(row, col, *rich_list)
+            return worksheet.write_rich_string(row, col, *data)
 
     def create_workbook(self):
         self.worksheet.add_write_handler(list, self.write_rich_list)
 
-        column_names = ["Comment Number"]  # + dict_keys_as_col_names
+        column_names = ["Comment Number", "Runs"]  # + dict_keys_as_col_names
+        self.set_column_formats()
+        self.write_header(column_names)
 
-        (
-            self.set_column_formats()
-            .write_header(column_names)
-        )
+        for comment_no, comment in enumerate(self.prepared_data()):
+            row = comment_no + 1
+            self.worksheet.write(row, 0, row)
+            for col_num, (col_name, data) in enumerate(comment.items(), 1):
+                self.worksheet.write(row, col_num, data)
 
-        # for comment_no, comment in enumerate(self.prepared_data()):
-        #     row = comment_no + 1
-        #     self.worksheet.write(row, 0, row)
-        #     for col_num, col_name, data in enumerate(comment.items()):
-        #         self.worksheet.write(row, col_num, data[col_name])
-        
         # Autofilter and Freeze Panes
-        max_row = len(self.prepared_data())
+        max_row = row
         max_col = len(column_names) - 1
         self.worksheet.autofilter(0, 0, max_row, max_col)
         self.worksheet.freeze_panes(1, 0)

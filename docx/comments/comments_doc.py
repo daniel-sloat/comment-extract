@@ -15,6 +15,24 @@ class CommentsDocument:
             **ns,
         )
 
+    # @cached_property
+    # def comment_bounds(self):
+    #     comment_ids = [
+    #         id
+    #         for id in self.xml.xpath(
+    #             "//w:commentRangeStart/@w:id",
+    #             **ns,
+    #         )
+    #     ]
+    #     comment_bounds = {}
+    #     for _id in comment_ids:
+    #         start_and_end_nodes = self.xml.xpath(
+    #             f"//w:commentRangeStart[@w:id={_id}]|//w:commentRangeEnd[@w:id={_id}]",
+    #             **ns,
+    #         )
+    #         comment_bounds[_id] = start_and_end_nodes
+    #     return {_id: CommentBounds(comment_bounds[_id][0], comment_bounds[_id][1]).asdict() for _id in comment_ids}
+
     @cached_property
     def comment_bounds(self):
         starts = {

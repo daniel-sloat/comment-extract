@@ -1,5 +1,6 @@
 """Comment data containers"""
 
+from functools import cached_property
 from lxml import etree
 from docx.baseelement import BaseDOCXElement
 from docx.elements import CommentParagraph, Bubble
@@ -41,7 +42,17 @@ class CommentBounds:
 
 class Comment:
     def __init__(
-        self, *, start, end, _id, bubble, author="", date="", initials="", comments, **attrs,
+        self,
+        *,
+        start,
+        end,
+        _id,
+        bubble,
+        author="",
+        date="",
+        initials="",
+        comments,
+        **attrs,
     ):
         self._start = start
         self._end = end
@@ -61,9 +72,14 @@ class Comment:
 
     @property
     def text(self):
-        return "\n".join(z for z in ("".join(run.text for run in para.runs) for para in self.paragraphs))
+        return "\n".join(
+            z
+            for z in (
+                "".join(run.text for run in para.runs) for para in self.paragraphs
+            )
+        )
 
-    @property
+    @cached_property
     def paragraphs(self):
         start_paragraph = self._start.xpath(
             "parent::w:p|following-sibling::w:p[1]",

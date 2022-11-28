@@ -1,3 +1,4 @@
+from pprint import pprint
 from .write_xlsx import WriteXLSX
 from .filenameparser import FileNameParser
 
@@ -12,4 +13,6 @@ class CommentRecord(list):
 
     def to_excel(self, filename, *args, **kwargs):
         xlsx = WriteXLSX(filename, self, "Comments")
+        # pprint(xlsx.prepared_data(), sort_dicts=False)
+        # xlsx.prepared_data()
         xlsx.create_workbook()
