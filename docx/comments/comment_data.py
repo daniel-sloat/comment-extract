@@ -92,15 +92,15 @@ class Comment:
             "parent::w:p|preceding-sibling::w:p[1]",
             **ns,
         )[0]
-        xpath = (
-            "(self::w:p|following-sibling::w:p)"
-            "[(not(re:test(string(.),'^\s*$')) or w:commentRangeEnd)]"
-        )
         # xpath = (
-        #     f"(self::w:p|following-sibling::w:p)"
-        #     f"[w:commentRangeStart/@w:id={self._id} or preceding-sibling::w:commentRangeStart or w:commentRangeEnd/@w:id={self._id} and "
-        #     f"not(re:test(string(.),'^\s*$'))]"
+        #     "(self::w:p|following-sibling::w:p)"
+        #     "[(not(re:test(string(.),'^\s*$')) or w:commentRangeEnd)]"
         # )
+        xpath = (
+            f"(self::w:p|following-sibling::w:p)"
+            f"[w:commentRangeStart/@w:id={self._id} or preceding-sibling::w:commentRangeStart/@w:id={self._id} or w:commentRangeEnd/@w:id={self._id} and "
+            f"not(re:test(string(.),'^\s*$'))]"
+        )
         paragraphs = (x for x in start_paragraph.xpath(xpath, **ns))
         paras = []
         for para in paragraphs:

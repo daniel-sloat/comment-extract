@@ -72,7 +72,7 @@ class WriteXLSX:
                         text_list = []
                         for run in group:
                             text_list.append(run.text)
-                        text = "".join(text_list).strip()
+                        text = "".join(text_list)
                         if text:
                             g = (self.create_formats(key_format), text)
                             runs.extend(g)

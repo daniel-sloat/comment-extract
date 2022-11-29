@@ -5,13 +5,16 @@ from docx.comments.comments_doc import CommentsDocument
 from docx.comments.comments_ext import CommentsExt
 from docx.comments.comments_xml import CommentsXML
 
+# from logger.logger import log_comments
 
+
+# @log_comments
 class Comments(CommentsDocument, CommentsXML, CommentsExt):
     def __repr__(self):
         return f"Comments(file='{self._doc.file}',count={len(self.comments)})"
 
-    def __getitem__(self, key):
-        return self.comments[key]
+    def __iter__(self):
+        return iter(self.comments)
 
     def __len__(self):
         return len(self.comments)

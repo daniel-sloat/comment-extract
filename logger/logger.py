@@ -1,4 +1,5 @@
 import logging
+import functools
 
 
 def logger_init(func):
@@ -24,3 +25,23 @@ def logger_start():
 def logger_quit():
     logging.info("Logging ended.")
     logging.shutdown()
+
+
+def log_filename(func):
+    @functools.wraps(func)
+    def wrapper(filename):
+        logging.info(f"Reading file {filename}")
+        result = func(filename)
+        return result
+
+    return wrapper
+
+
+def log_comments(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        logging.info(f"Reading file {len(result)}")
+        return result
+
+    return wrapper
