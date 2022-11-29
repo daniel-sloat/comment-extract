@@ -11,8 +11,8 @@ class CommentRecord(list):
     def total(self):
         return sum(len(comments) for comments in self)
 
-    def to_excel(self, filename, *args, **kwargs):
-        xlsx = WriteXLSX(filename, self, "Comments")
+    def to_excel(self, output_file, *args, **kwargs):
+        xlsx = WriteXLSX(output_file, self, "Comments")
         # pprint(xlsx.prepared_data(), sort_dicts=False)
         # xlsx.prepared_data()
         xlsx.create_workbook()

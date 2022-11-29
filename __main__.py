@@ -23,8 +23,10 @@ def main():
         doc = Document(document)
         comments = doc.comments
         comment_record.append(comments)
-    comment_record.to_excel("output/comments.xlsx", **config)
+    comment_record.to_excel(**config)
 
+
+import cProfile
 
 if __name__ == "__main__":
-    main()
+    cProfile.run("main()", sort="tottime")

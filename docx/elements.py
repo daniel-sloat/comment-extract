@@ -3,6 +3,7 @@ from functools import cached_property
 import re
 from docx.ooxml_ns import ns
 from docx.baseelement import BaseDOCXElement
+from lxml.etree import XPath
 
 
 class TextElement(BaseDOCXElement):
@@ -84,15 +85,19 @@ class CommentParagraph(ParagraphStyled):
 
     @property
     def runs(self):
+        comment_run = XPath(
+            "self::w:r[w:t|w:footnoteReference|w:endnoteReference]", **ns
+        )
+        comment_start = XPath(
+            f"self::w:commentRangeStart[@w:id={self._comment._id}]", **ns
+        )
+        comment_end = XPath(f"self::w:commentRangeEnd[@w:id={self._comment._id}]", **ns)
+
         def get_runs(children):
             for child in children:
-                if child.xpath(
-                    "self::w:r[w:t|w:footnoteReference|w:endnoteReference]", **ns
-                ):
+                if comment_run(child):
                     yield CommentRun(child, self)
-                if child.xpath(
-                    f"self::w:commentRangeEnd[@w:id={self._comment._id}]", **ns
-                ):
+                elif comment_end(child):
                     break
 
         para_elements = (el for el in self.element.xpath("*", **ns))
@@ -102,9 +107,7 @@ class CommentParagraph(ParagraphStyled):
 
         if comment_start_paragraph:
             for element in para_elements:
-                if element.xpath(
-                    f"self::w:commentRangeStart[@w:id={self._comment._id}]", **ns
-                ):
+                if comment_start(element):
                     return get_runs(para_elements)
         else:
             return get_runs(para_elements)

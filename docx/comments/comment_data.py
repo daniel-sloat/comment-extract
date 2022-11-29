@@ -65,10 +65,13 @@ class Comment:
         self._comments = comments
 
     def __repr__(self):
-        return f"Comment(_id='{self._id}',text='{self.text}')"
+        return f"Comment(_id='{self._id}')"
 
     def __iter__(self):
         return iter(self.paragraphs)
+
+    def __str__(self):
+        return self.text
 
     @property
     def text(self):
@@ -93,6 +96,11 @@ class Comment:
             "(self::w:p|following-sibling::w:p)"
             "[(not(re:test(string(.),'^\s*$')) or w:commentRangeEnd)]"
         )
+        # xpath = (
+        #     f"(self::w:p|following-sibling::w:p)"
+        #     f"[w:commentRangeStart/@w:id={self._id} or preceding-sibling::w:commentRangeStart or w:commentRangeEnd/@w:id={self._id} and "
+        #     f"not(re:test(string(.),'^\s*$'))]"
+        # )
         paragraphs = (x for x in start_paragraph.xpath(xpath, **ns))
         paras = []
         for para in paragraphs:

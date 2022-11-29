@@ -6,9 +6,9 @@ from zipfile import ZipFile
 
 from lxml import etree
 
-from .comments.comments import Comments
-from .styles.styles import Styles
-from .notes.notes import Notes
+from docx.comments.comments import Comments
+from docx.styles.styles import Styles
+from docx.notes.notes import Notes
 
 
 class Document:
@@ -29,5 +29,13 @@ class Document:
             return {
                 filename: etree.fromstring(z.read(filename))
                 for filename in z.namelist()
-                if ".xml" in filename
+                if filename
+                in (
+                    "word/document.xml",
+                    "word/styles.xml",
+                    "word/comments.xml",
+                    "word/commentsExtended.xml",
+                    "word/footnotes.xml",
+                    "word/endnotes.xml",
+                )
             }
