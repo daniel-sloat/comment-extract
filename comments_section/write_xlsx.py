@@ -2,8 +2,6 @@ from itertools import groupby
 from pathlib import Path
 import xlsxwriter as xl
 
-# from docx.elements import ExcelRun
-
 
 class WriteXLSX:
     def __init__(
@@ -25,23 +23,22 @@ class WriteXLSX:
     #         for key_format, group in groupby(
     #             paragraph.runs, lambda x: x.asdict()
     #         ):
-                
 
-                # runs = []
-                # for paragraph in comment.paragraphs:
-                #     newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
-                #     for key_format, group in groupby(
-                #         paragraph.runs, lambda x: x.asdict()
-                #     ):
-                #         text_list = []
-                #         for run in group:
-                #             text_list.append(run.text)
-                #         text = "".join(text_list).strip()
-                #         if text:
-                #             g = (self.create_formats(key_format), text)
-                #             runs.extend(g)
-                #         if newline:
-                #             runs.append(newline)
+    # runs = []
+    # for paragraph in comment.paragraphs:
+    #     newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
+    #     for key_format, group in groupby(
+    #         paragraph.runs, lambda x: x.asdict()
+    #     ):
+    #         text_list = []
+    #         for run in group:
+    #             text_list.append(run.text)
+    #         text = "".join(text_list).strip()
+    #         if text:
+    #             g = (self.create_formats(key_format), text)
+    #             runs.extend(g)
+    #         if newline:
+    #             runs.append(newline)
     def prepared_data(self):
         p = []
         count = 0
@@ -69,15 +66,11 @@ class WriteXLSX:
                     for key_format, group in groupby(
                         paragraph.runs, lambda x: x.asdict()
                     ):
-                        text_list = []
-                        for run in group:
-                            text_list.append(run.text)
-                        text = "".join(text_list)
+                        text = "".join(run.text for run in group)
                         if text:
-                            g = (self.create_formats(key_format), text)
-                            runs.extend(g)
-                        if newline:
-                            runs.append(newline)
+                            runs.extend((self.create_formats(key_format), text))
+                    if newline:
+                        runs.append(newline)
                 q["runs"] = runs
                 if runs:
                     yield q
@@ -163,4 +156,58 @@ class WriteXLSX:
         self.worksheet.freeze_panes(1, 0)
 
         Path(self.filename).parent.mkdir(exist_ok=True)
+        self.workbook.close()
+
+
+class XLSXBase:
+    def __init__(self):
+        self.workbook = xl.Workbook()
+
+
+class WriteComments(XLSXBase):
+    def __init__(
+        self,
+        header,
+        data,
+        filename="output/comments.xlsx",
+        sheetname="Comments",
+    ):
+        super().__init__()
+        self.header = header
+        self.data = data
+        self.filename = filename
+        self.sheetname = sheetname
+        self.worksheet = self.workbook.add_worksheet(self.sheetname)
+
+    def write_header_and_set_columns(self):
+        header_format = self.workbook.add_format(
+            {"bold": True, "text_wrap": True, "valign": "bottom", "border": 1}
+        )
+        for col_num, (col_name, _, formats) in enumerate(self.header):
+            self.worksheet.set_column(col_num, col_num, *formats)
+            self.worksheet.write(0, col_num, col_name, header_format)
+
+    @staticmethod
+    def write_rich_list(worksheet, row: int, col: int, data):
+        if len(data) == 2:
+            return worksheet.write_string(row, col, data[1])
+        else:
+            return worksheet.write_rich_string(row, col, *data)
+
+    def create_workbook(self):
+        self.worksheet.add_write_handler(list, self.write_rich_list)
+        # self.write_header_and_set_columns()
+
+        for row, comment in enumerate(self.data, 1):
+            for col_num, (_, data) in enumerate(comment.items()):
+                self.worksheet.write(row, col_num, data)
+
+        # Autofilter and Freeze Panes
+        max_row = row
+        max_col = len(self.header) - 1
+        self.worksheet.autofilter(0, 0, max_row, max_col)
+        self.worksheet.freeze_panes(1, 0)
+
+        Path(self.filename).parent.mkdir(exist_ok=True)
+        self.workbook.filename = self.filename
         self.workbook.close()

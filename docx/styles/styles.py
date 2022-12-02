@@ -23,7 +23,7 @@ from collections import ChainMap
 from functools import cached_property
 from docx.ooxml_ns import ns
 from docx.styles.style_element import StyleElement
-from docx.elements import PropElement
+from docx.elements.elements import PropElement
 
 
 class Styles:

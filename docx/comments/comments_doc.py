@@ -1,6 +1,6 @@
 from functools import cached_property
-from ..ooxml_ns import ns
-from .comment_data import CommentBounds
+from docx.ooxml_ns import ns
+from docx.comments.comment_data import CommentBounds
 
 
 class CommentsDocument:

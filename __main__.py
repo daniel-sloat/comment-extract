@@ -4,21 +4,22 @@ from pathlib import Path
 from config import toml_config
 from logger.logger import logger_init
 
-from docx.document import Document
+from docx.docx import Document
+from comments_section.get_comments import get_comments
 from comments_section.public_record import CommentRecord
 
 
 def docx_in_folder(folder_path: str):
     """Returns all docx files in folder."""
-    return (
-        x for x in Path(folder_path).glob("*.docx") if x.is_file()
-    )
+    return (x for x in Path(folder_path).glob("*.docx") if x.is_file())
 
 
 @logger_init
 def main():
     config = toml_config.load()
     comment_record = CommentRecord()
+    # documents = docx_in_folder(config["folder_path"])
+    # comments = get_comments(documents)
     for document in docx_in_folder(config["folder_path"]):
         doc = Document(document)
         comments = doc.comments
@@ -29,4 +30,5 @@ def main():
 import cProfile
 
 if __name__ == "__main__":
-    cProfile.run("main()", sort="tottime")
+    main()
+    # cProfile.run("main()", sort="tottime")

@@ -1,5 +1,4 @@
-from docx.baseelement import BaseDOCXElement
-from docx.elements import PropElement
+from docx.elements.elements import BaseDOCXElement, PropElement
 from docx.ooxml_ns import ns
 
 

@@ -1,6 +1,6 @@
 from functools import cached_property
-from docx.baseelement import BaseDOCXElement
-from ..ooxml_ns import ns
+from docx.elements.elements import BaseDOCXElement
+from docx.ooxml_ns import ns
 
 
 class CommentsExt:

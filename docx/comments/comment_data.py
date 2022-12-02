@@ -2,8 +2,9 @@
 
 from functools import cached_property
 from lxml import etree
-from docx.baseelement import BaseDOCXElement
-from docx.elements import CommentParagraph, Bubble
+from docx.elements.elements import BaseDOCXElement
+from docx.elements.paragraph import CommentParagraph
+from docx.elements.paragraph_group import Bubble, ParagraphGroup
 from docx.ooxml_ns import ns
 
 
@@ -40,7 +41,7 @@ class CommentBounds:
         }
 
 
-class Comment:
+class Comment(ParagraphGroup):
     def __init__(
         self,
         *,
@@ -67,21 +68,6 @@ class Comment:
     def __repr__(self):
         return f"Comment(_id='{self._id}')"
 
-    def __iter__(self):
-        return iter(self.paragraphs)
-
-    def __str__(self):
-        return self.text
-
-    @property
-    def text(self):
-        return "\n".join(
-            z
-            for z in (
-                "".join(run.text for run in para.runs) for para in self.paragraphs
-            )
-        )
-
     @cached_property
     def paragraphs(self):
         start_paragraph = self._start.xpath(
@@ -92,19 +78,40 @@ class Comment:
             "parent::w:p|preceding-sibling::w:p[1]",
             **ns,
         )[0]
-        # xpath = (
-        #     "(self::w:p|following-sibling::w:p)"
-        #     "[(not(re:test(string(.),'^\s*$')) or w:commentRangeEnd)]"
-        # )
         xpath = (
-            f"(self::w:p|following-sibling::w:p)"
-            f"[w:commentRangeStart/@w:id={self._id} or preceding-sibling::w:commentRangeStart/@w:id={self._id} or w:commentRangeEnd/@w:id={self._id} and "
-            f"not(re:test(string(.),'^\s*$'))]"
+            "(self::w:p|following-sibling::w:p)"
+            "[(not(re:test(string(.),'^\s*$')) or w:commentRangeEnd)]"
         )
-        paragraphs = (x for x in start_paragraph.xpath(xpath, **ns))
+        paragraphs = (x for x in start_paragraph.xpath(xpath, _id=self._id, **ns))
         paras = []
         for para in paragraphs:
             paras.append(CommentParagraph(para, self))
             if para == end_paragraph:
                 break
         return paras
+
+    # @cached_property
+    # def paragraphs(self):
+    #     end_paragraph2 = self._start.xpath(
+    #         "(//w:p[w:commentRangeEnd/@w:id=$_id]|//w:p[following-sibling::w:commentRangeEnd/@w:id=$_id])",
+    #         _id=self._id,
+    #         **ns,
+    #     )[0]
+    #     # print(end_paragraph.xpath("string(.)", **ns))
+    #     end_paragraph = self._end.xpath(
+    #         "parent::w:p|preceding-sibling::w:p[1]",
+    #         **ns,
+    #     )[0]
+    #     if end_paragraph != end_paragraph2:
+    #         print(end_paragraph2.xpath("string(preceding-sibling::w:p[1])",**ns), self.bubble)
+    #     xpath = (
+    #         "//w:p[w:commentRangeStart/@w:id=$_id]/self::w:p"# and //w:p[preceding-sibling::w:commentRangeStart/@w:id=$_id]/following-siblings::w:p)"
+    #         # "[(not(re:test(string(.),'^\s*$')) or w:commentRangeEnd)]"
+    #     )
+    #     paragraphs = (x for x in self._start.xpath(xpath, _id=self._id, **ns))
+    #     paras = []
+    #     for para in paragraphs:
+    #         paras.append(CommentParagraph(para, self))
+    #         if para == end_paragraph:
+    #             break
+    #     return paras
