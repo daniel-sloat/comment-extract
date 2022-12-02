@@ -6,6 +6,9 @@ from docx.ooxml_ns import ns
 
 
 class Paragraph(TextElement):
+    def __getitem__(self, key):
+        return self.runs[key]
+    
     def __iter__(self):
         return iter(self.runs)
 
@@ -63,11 +66,13 @@ class CommentParagraph(ParagraphStyled):
         comment_end = XPath(f"self::w:commentRangeEnd[@w:id={self._comment._id}]", **ns)
 
         def get_runs(children):
+            runs = []
             for child in children:
                 if comment_run(child):
-                    yield CommentRun(child, self)
+                    runs.append(CommentRun(child, self))
                 elif comment_end(child):
                     break
+            return runs
 
         para_elements = (
             el

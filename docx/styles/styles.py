@@ -66,7 +66,7 @@ class Styles:
     def styles_map(self):
         inherited_styles = {}
         for name, style in self.styles.items():
-            based_on_list = [style.basedon]
+            based_on_list = [name, style.basedon]
             while style.basedon:
                 following_style = self.styles[style.basedon].basedon
                 based_on_list.append(following_style)

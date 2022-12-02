@@ -13,6 +13,9 @@ class Comments(CommentsDocument, CommentsXML, CommentsExt):
     def __repr__(self):
         return f"Comments(file='{self._doc.file}',count={len(self.comments)})"
 
+    def __getitem__(self, key):
+        return self.comments[key]
+    
     def __iter__(self):
         return iter(self.comments)
 

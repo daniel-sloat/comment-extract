@@ -1,6 +1,5 @@
 from itertools import groupby
 from comments_section.filenameparser import FileNameParser
-from comments_section.write_xlsx import XLSXBase
 
 
 class XLSXSheetFormats:
@@ -36,10 +35,10 @@ class XLSXSheetFormats:
         )
 
 
-class DOCX_XLSX_Adapter(XLSXBase, XLSXSheetFormats):
-    def __init__(self, comment_record):
-        super().__init__()
+class DOCX_XLSX_Adapter(XLSXSheetFormats):
+    def __init__(self, comment_record, workbook):
         self.comment_record = comment_record
+        self.workbook = workbook
 
     def sheet_design(self, add_columns=None):
         columns = [

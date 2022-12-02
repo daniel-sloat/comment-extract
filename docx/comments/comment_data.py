@@ -67,6 +67,9 @@ class Comment(ParagraphGroup):
 
     def __repr__(self):
         return f"Comment(_id='{self._id}')"
+    
+    def __getitem__(self, key):
+        return self.paragraphs[key]
 
     @cached_property
     def paragraphs(self):
