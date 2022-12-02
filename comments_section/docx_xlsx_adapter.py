@@ -1,4 +1,5 @@
 from itertools import groupby
+import re
 from comments_section.filenameparser import FileNameParser
 
 
@@ -77,12 +78,20 @@ class DOCX_XLSX_Adapter(XLSXSheetFormats):
                 if q["Referenced Text"]:
                     yield q
 
+    @staticmethod
+    def clean(text):
+        text = re.sub(r"\s{2,}", " ", text)  # Replace 2 spaces or more with single
+        text = re.sub(r"\s", " ", text)  # Replace any whitespace with regular space
+        text = re.sub(r"“|”", '"', text)  # Replace curly quote characters
+        return text
+
     def combine_runs(self, comment):
         runs = []
         for paragraph in comment.paragraphs:
             newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
             for key_format, group in groupby(paragraph.runs, lambda x: x.asdict()):
                 text = "".join(run.text for run in group)
+                text = self.clean(text)
                 if text:
                     runs.extend((self.workbook.add_format(key_format), text))
             if newline:
