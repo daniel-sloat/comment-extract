@@ -1,12 +1,12 @@
 """Main document processing script"""
 
 from pathlib import Path
-from config import toml_config
-from logger.logger import logger_init
 
-from docx.docx import Document
 from comments_section.get_comments import get_comments
 from comments_section.public_record import CommentRecord
+from config import toml_config
+from docx.docx import Document
+from logger.logger import logger_init
 
 
 def docx_in_folder(folder_path: str):
