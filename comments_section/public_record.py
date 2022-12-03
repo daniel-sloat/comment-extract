@@ -9,9 +9,10 @@ class CommentRecord(list):
     def total(self):
         return sum(len(comments) for comments in self)
 
-    def to_excel(self, output_file, *args, **kwargs):
+    def to_excel(self, output_file, **attrs):
         xlsx = WriteComments(
             filename=output_file,
             comments=self,
+            **attrs,
         )
         xlsx.create_workbook()
