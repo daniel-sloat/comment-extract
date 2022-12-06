@@ -1,16 +1,20 @@
 from lxml.etree import XPath
 
 from docx.elements.elements import PropElement, TextElement
-from docx.elements.run import CommentRun, Run
+from docx.elements.run import CommentRun, Run, RunStyled
 from docx.ooxml_ns import ns
 
 
 class Paragraph(TextElement):
     def __getitem__(self, key):
         return self.runs[key]
-    
+
     def __iter__(self):
         return iter(self.runs)
+
+    @property
+    def text(self):
+        return "".join(run.text for run in self.runs)
 
     @property
     def runs(self):
@@ -35,6 +39,14 @@ class Paragraph(TextElement):
     def style(self):
         return self.element.xpath("string(w:pPr/w:pStyle/@w:val)", **ns)
 
+    @property
+    def footnotes(self):
+        return [run.footnote for run in self.runs if run.footnote]
+
+    @property
+    def endnotes(self):
+        return [run.endnote for run in self.runs if run.endnote]
+
 
 class ParagraphStyled(Paragraph):
     def __init__(self, element, styles):
@@ -45,15 +57,18 @@ class ParagraphStyled(Paragraph):
     def style_props(self):
         return self._styles.styles_map.get(self.style, {}).get("para", {})
 
+    @property
+    def runs(self):
+        return [
+            RunStyled(element, self._styles)
+            for element in self.element.xpath("w:r", **ns)
+        ]
+
 
 class CommentParagraph(ParagraphStyled):
     def __init__(self, element, comment):
         super().__init__(element, comment._comments._doc.styles)
         self._comment = comment
-
-    @property
-    def text(self):
-        return "".join(run.text for run in self.runs)
 
     @property
     def runs(self):

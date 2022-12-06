@@ -1,9 +1,14 @@
 from docx.ooxml_ns import ns
-from docx.elements.elements import TextElement
-from docx.elements.paragraph import Paragraph
+from docx.elements.paragraph_group import ParagraphGroup
+from docx.elements.paragraph import ParagraphStyled
 
 
-class NoteElement(TextElement):
+class NoteElement(ParagraphGroup):
+    def __init__(self, element, notes):
+        super().__init__(element)
+        self._styles = notes._doc.styles
+        self._notes = notes
+
     def __repr__(self):
         return f"NoteElement(_id='{self._id}',_type='{self._type}')"
 
@@ -16,14 +21,7 @@ class NoteElement(TextElement):
         return self.element.xpath("string(@w:type)", **ns)
 
     @property
-    def text(self):
-        return "\n".join(
-            z
-            for z in (
-                "".join(run.text for run in para.runs) for para in self.paragraphs
-            )
-        )
-
-    @property
     def paragraphs(self):
-        return [Paragraph(el) for el in self.element]
+        return [
+            ParagraphStyled(el, self._styles) for el in self.element.xpath("w:p", **ns)
+        ]

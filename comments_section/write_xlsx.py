@@ -5,7 +5,9 @@ from comments_section.docx_xlsx_adapter import DOCX_XLSX_Adapter
 
 
 class WriteComments:
-    def __init__(self, comments, filename="output/comments.xlsx", sheetname="Comments",  **attrs):
+    def __init__(
+        self, comments, filename="output/comments.xlsx", sheetname="Comments", **attrs
+    ):
         self.filename = filename
         self.workbook = xl.Workbook(self.filename)
         self.comments = DOCX_XLSX_Adapter(comments, self.workbook, **attrs)
@@ -16,7 +18,8 @@ class WriteComments:
     @staticmethod
     def write_rich_list(worksheet, row, col, data):
         if len(data) == 2:
-            return worksheet.write_string(row, col, data[1])
+            format_, text = data
+            return worksheet.write(row, col, text)
         else:
             return worksheet.write_rich_string(row, col, *data)
 

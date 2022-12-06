@@ -45,20 +45,6 @@ class RunStyled(Run):
             self._styles.styles_map.get(self.style, {}).get("run", {}), self.props
         )
 
-    def simple_props(self):
-        return "".join(
-            [
-                "b" if self.bold else "",
-                "i" if self.italic else "",
-                "u" if self.underline else "",
-                "s" if self.strike else "",
-                "w" if self.d_underline else "",
-                "z" if self.d_strike else "",
-                "v" if self.subscript else "",
-                "x" if self.superscript else "",
-            ]
-        )
-
     def asdict(self):
         d = {}
         if self.bold:
@@ -143,3 +129,7 @@ class CommentRun(RunStyled):
     @property
     def fn(self):
         return self._notes.footnotes.get(self.footnote, "")
+
+    @property
+    def en(self):
+        return self._notes.endnotes.get(self.endnote, "")

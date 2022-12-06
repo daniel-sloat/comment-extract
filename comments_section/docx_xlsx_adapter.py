@@ -1,4 +1,5 @@
 from itertools import groupby
+from pprint import pprint
 import re
 from comments_section.filenameparser import FileNameParser
 
@@ -37,7 +38,9 @@ class XLSXSheetFormats:
 
 
 class DOCX_XLSX_Adapter(XLSXSheetFormats):
-    def __init__(self, comment_record, workbook, filename_delimiter, add_columns=False, **attrs):
+    def __init__(
+        self, comment_record, workbook, filename_delimiter, add_columns=False, **attrs
+    ):
         self.comment_record = comment_record
         self.workbook = workbook
         self.delimiter = filename_delimiter
@@ -58,8 +61,22 @@ class DOCX_XLSX_Adapter(XLSXSheetFormats):
             ("Referenced Text", "self.combine_runs(comment)", (80, self.text_wrap)),
         ]
         if self.add_columns:
-            columns.insert(10, ("Comment Bubble - Category", "comment.bubble.text", (15, self.text_wrap)))
-            columns.insert(11, ("Comment Bubble - Alt Commenter Code", "comment.bubble.text", (15, self.text_wrap, self.hidden)))
+            columns.insert(
+                10,
+                (
+                    "Comment Bubble - Category",
+                    "comment.bubble.text",
+                    (15, self.text_wrap),
+                ),
+            )
+            columns.insert(
+                11,
+                (
+                    "Comment Bubble - Alt Commenter Code",
+                    "comment.bubble.text",
+                    (15, self.text_wrap, self.hidden),
+                ),
+            )
             columns.insert(13, ("Response", "''", (80, self.text_wrap)))
         return columns
 
@@ -87,36 +104,76 @@ class DOCX_XLSX_Adapter(XLSXSheetFormats):
         text = re.sub(r"“|”", '"', text)  # Replace curly quote characters
         return text
 
-    def combine_runs(self, comment):
+    # def combine_runs(self, comment):
+    #     runs = []
+    #     for paragraph in comment.paragraphs:
+    #         newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
+    #         for key_format, group in groupby(paragraph.runs, lambda x: x.asdict()):
+    #             text = "".join(run.text for run in group)
+    #             text = self.clean(text)
+    #             if text:
+    #                 runs.extend((self.workbook.add_format(key_format), text))
+    #         if newline:
+    #             runs.append(newline)
+    #     return runs
+
+    class P:
         runs = []
-        for paragraph in comment.paragraphs:
-            newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
-            for key_format, group in groupby(paragraph.runs, lambda x: x.asdict()):
-                text = "".join(run.text for run in group)
-                text = self.clean(text)
-                if text:
-                    runs.extend((self.workbook.add_format(key_format), text))
-            if newline:
-                runs.append(newline)
+        
+        def __iter__(self):
+            return iter(self.runs)
+    
+    def add_notes(self, comment):
+        paragraphs = self.P()
+        para_runs = []
+        footnotes = (run.footnote for paragraph in comment for run in paragraph)
+        endnotes = (run.endnote for paragraph in comment for run in paragraph)
+        if endnotes or footnotes:
+            comment.paragraphs = comment.paragraphs.append()
+        return paragraphs
+
+    def combine_runs2(self, comment):
+        paragraphs = []
+        for paragraph in comment:
+            runs = []
+            for key_format, run_group in groupby(paragraph.runs, lambda x: x.asdict()):
+                run_group_text = "".join(run.text for run in run_group)
+                runs.append(
+                    (self.workbook.add_format(key_format), self.clean(run_group_text))
+                )
+            paragraphs.append(runs)
+        return paragraphs
+
+    def clean_up(self, comment):
+        paragraphs = []
+        for paragraph in comment:
+            runs = []
+            for run in paragraph:
+                key_format, text = run
+                if run == paragraph[0]:
+                    text = text.lstrip()
+                if run == paragraph[-1]:
+                    text = text.rstrip()
+                if not text:
+                    continue
+                runs.append((key_format, text))
+            paragraphs.append(runs)
+        return paragraphs
+
+    def para_to_newline(self, comment):
+        runs = []
+        for paragraph in comment:
+            for run in paragraph:
+                runs.extend(run)
+            if paragraph is not comment[-1]:
+                runs.append("\n")
         return runs
 
     def combine_runs(self, comment):
-        runs = []
-        for paragraph in comment.paragraphs:
-            newline = "\n" if paragraph is not comment.paragraphs[-1] else ""
-            for key_format, group in groupby(paragraph.runs, lambda x: x.asdict()):
-                text_list = []
-                group = list(group)
-                for run in group:
-                    if run == group[0]:
-                        run_text = run.text.lstrip()
-                        text_list.append(run_text)
-                    else:
-                        text_list.append(run.text)
-                text = "".join(text_list)
-                text = self.clean(text)
-                if text:
-                    runs.extend((self.workbook.add_format(key_format), text))
-            if newline:
-                runs.append(newline)
-        return runs
+        # comment = self.add_notes(comment)
+        # print(comment)
+        comment.paragraphs_with_notes()
+        comment = self.combine_runs2(comment)
+        comment = self.clean_up(comment)
+        comment = self.para_to_newline(comment)
+        return comment

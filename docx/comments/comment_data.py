@@ -7,6 +7,8 @@ from docx.elements.paragraph import CommentParagraph
 from docx.elements.paragraph_group import Bubble, ParagraphGroup
 from docx.ooxml_ns import ns
 
+from lxml.builder import ElementMaker
+
 
 class CommentMetaData(BaseDOCXElement):
     def __init__(self, element):
@@ -67,7 +69,7 @@ class Comment(ParagraphGroup):
 
     def __repr__(self):
         return f"Comment(_id='{self._id}')"
-    
+
     def __getitem__(self, key):
         return self.paragraphs[key]
 
@@ -92,6 +94,49 @@ class Comment(ParagraphGroup):
             if para == end_paragraph:
                 break
         return paras
+
+    @property
+    def footnotes(self):
+        return (
+            run.footnote
+            for paragraph in self.paragraphs
+            for run in paragraph
+            if run.footnote
+        )
+
+    @property
+    def endnotes(self):
+        return (
+            run.endnote
+            for paragraph in self.paragraphs
+            for run in paragraph
+            if run.endnote
+        )
+
+    @property
+    def notes(self):
+        n = []
+        for paragraph in self.paragraphs:
+            for run in paragraph:
+                if run.footnote:
+                    n.append(("footnotes", run.footnote))
+                if run.endnote:
+                    n.append(("endnotes", run.endnote))
+        return n
+
+    def paragraphs_with_notes(self):
+        ns = {
+            "namespaces": {
+                "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+            }
+        }
+        E = ElementMaker(namespace=ns["namespaces"]["w"], nsmap=ns["namespaces"])
+        for no, note in enumerate(self.notes):
+            if no > 0:
+                type_, num = note
+                paragraphs = self._comments._doc.notes[type_][num]
+                for paragraph in paragraphs:
+                    paragraph.insert(0, E.r(E.rPr(E.vertAlign(val="2")), E.t(str(no))))
 
     # @cached_property
     # def paragraphs(self):

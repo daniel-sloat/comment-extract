@@ -23,6 +23,10 @@ def main():
     for document in docx_in_folder(config["folder_path"]):
         doc = Document(document)
         comments = doc.comments
+        # for comment in comments:
+        #     for paragraph in comment:
+        #         for run in paragraph:
+        #             print(run.text)
         comment_record.append(comments)
     comment_record.to_excel(**config)
 
