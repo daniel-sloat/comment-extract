@@ -4,3 +4,4 @@ output/
 config.toml
 *.log
 .env
+*.egg-info

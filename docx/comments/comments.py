@@ -21,6 +21,18 @@ class Comments(CommentsDocument, CommentsXML, CommentsExt):
 
     def __len__(self):
         return len(self.comments)
+    
+    @property
+    def comments(self):
+        return [
+            Comment(
+                _id,
+                comments=self,
+            )
+            for _id in self.comment_ids
+            if _id not in self.ancestors
+        ]
+
 
     @property
     def comments(self):

@@ -144,6 +144,8 @@ documents = (
 
 
 class Tests:
+    total_store = []
+    
     def __init__(self):
         self.store = self.make_list()
 
@@ -155,4 +157,6 @@ r = Tests()
 q = Tests()
 print(r.store, q.store)
 r.store.append("i")
+q.total_store.append("p")
 print(r.store, q.store)
+print(r.total_store, q.total_store)

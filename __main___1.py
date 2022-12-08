@@ -1,8 +1,7 @@
 """Main document processing script"""
 
 from pathlib import Path
-
-from comments_section.get_comments import get_comments
+# from comments_section.get_comments import get_comments
 from comments_section.public_record import CommentRecord
 from config import toml_config
 from docx.docx import Document
@@ -31,7 +30,7 @@ def main():
     comment_record.to_excel(**config)
 
 
-import cProfile
+# import cProfile
 
 if __name__ == "__main__":
     main()

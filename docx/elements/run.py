@@ -1,16 +1,21 @@
 from collections import ChainMap
 from functools import cached_property
 import re
-from docx.elements.elements import PropElement, TextElement
+from docx.elements.elements import BaseDOCXElement
 from docx.ooxml_ns import ns
 
+from lxml.etree import QName
 
-class Run(TextElement):
+
+class Run(BaseDOCXElement):
+    def __init__(self, parent, element):
+        super().__init(element)
+        self._paragraph = parent
+        
     @property
     def props(self):
         return {
-            (element := PropElement(el)).tag: element.attrib
-            for el in self.element.xpath("w:rPr/*", **ns)
+            QName(el).localname: el.attrib for el in self.element.xpath("w:rPr/*", **ns)
         }
 
     @property
@@ -25,24 +30,19 @@ class Run(TextElement):
     def endnote(self):
         return self.element.xpath("string(w:endnoteReference/@w:id)", **ns)
 
-
-class RunStyled(Run):
-    def __init__(self, element, styles):
-        super().__init__(element)
-        self._styles = styles
-
     @cached_property
     def display_props(self):
+        styles = self._paragraph._group._comments._doc.styles
         pstyle = self.element.xpath("string(parent::w:p/w:pPr/w:pStyle/@w:val)", **ns)
         if pstyle:
-            pstyle_run_props = self._styles.styles_map.get(pstyle, {}).get(
+            pstyle_run_props = styles.styles_map.get(pstyle, {}).get(
                 "run", {}
             )  # Returns ChainMap
             return pstyle_run_props.new_child(
-                self._styles.styles_map.get(self.style, {}).get("run", {})
+                styles.styles_map.get(self.style, {}).get("run", {})
             ).new_child(self.props)
         return ChainMap(
-            self._styles.styles_map.get(self.style, {}).get("run", {}), self.props
+            styles.styles_map.get(self.style, {}).get("run", {}), self.props
         )
 
     def asdict(self):
@@ -120,16 +120,12 @@ class RunStyled(Run):
     def caps(self):
         return self._toggled("caps")
 
-
-class CommentRun(RunStyled):
-    def __init__(self, element, para):
-        super().__init__(element, para._styles)
-        self._notes = para._comment._comments._doc.notes
-
     @property
     def fn(self):
-        return self._notes.footnotes.get(self.footnote, "")
+        notes = self._paragraph._group._comments._doc.notes
+        return notes.footnotes.get(self.footnote, "")
 
     @property
     def en(self):
-        return self._notes.endnotes.get(self.endnote, "")
+        notes = self._paragraph._group._comments._doc.notes
+        return notes.endnotes.get(self.endnote, "")

@@ -27,53 +27,20 @@ class CommentMetaData(BaseDOCXElement):
         }
 
 
-class Comment(ParagraphGroup):
-    def __init__(
-        self,
-        *,
-        start,
-        comments,
-        **attrs,
-    ):
-        self.paragraphs = [CommentParagraph(el) for el in self.get_paragraphs()]
-        self._start = start
-        self._attrs = attrs
-        self._comments = comments
-
-    def __repr__(self):
-        return f"Comment(_id='{self._id}')"
+class CommentBounds:
+    def __init__(self, start, end):
+        self.start: etree._Element = start
+        self.end: etree._Element = end
 
     @property
     def _id(self):
-        return self._start.xpath("string(@w:id)", **ns)
+        return self.start.xpath("string(@w:id)", **ns)
 
-    @property
-    def _end(self):
-        return self._start.xpath(
-            "string(//w:commentRangeEnd/@w:id=$_id)", _id=self._id, **ns
-        )
-
-    # @cached_property
-    def get_paragraphs(self):
-        start_paragraph = self._start.xpath(
-            "parent::w:p|following-sibling::w:p[1]",
-            **ns,
-        )[0]
-        end_paragraph = self._end.xpath(
-            "parent::w:p|preceding-sibling::w:p[1]",
-            **ns,
-        )[0]
-        xpath = (
-            "(self::w:p|following-sibling::w:p)"
-            "[(not(re:test(string(.),'^\s*$')) or w:commentRangeEnd)]"
-        )
-        paragraphs = (x for x in start_paragraph.xpath(xpath, **ns))
-        paras = []
-        for para in paragraphs:
-            paras.append(para)
-            if para == end_paragraph:
-                break
-        return paras
+    def asdict(self):
+        return {
+            "start": self.start,
+            "end": self.end,
+        }
 
 
 class Comment(ParagraphGroup):
@@ -103,8 +70,11 @@ class Comment(ParagraphGroup):
     def __repr__(self):
         return f"Comment(_id='{self._id}')"
 
-    # @cached_property
-    def get_paragraphs(self):
+    def __getitem__(self, key):
+        return self.paragraphs[key]
+
+    @cached_property
+    def paragraphs(self):
         start_paragraph = self._start.xpath(
             "parent::w:p|following-sibling::w:p[1]",
             **ns,
