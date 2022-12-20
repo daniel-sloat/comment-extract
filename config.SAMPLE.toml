@@ -2,38 +2,8 @@
 # Example: "folder\folder" or "C:\Users\user\Documents"
 folder_path = 'tests'
 
-# Specify output xlsx file
+# Specify output xlsx file.
 output_file = 'output/comments.xlsx'
 
-# Parses filename into two, at the following delimiter.
-# For example, with "-" delimiter, a file with the name "100-Filename.docx" 
-# will be automatically parsed as Document Number "100" and Commenter Code "Filename". 
-# Leave blank '' for no parsing.
-filename_delimiter = '-'
-
-# Text within a comment bubble is typically used to identify
-# groupings of comments. When there are multiple commenters per 
-# file, and you wish to identify the commenters individually, 
-# the following delimiter will split comment bubble text into two.
-# For example, "Grouping; Commenter" will be split into "Grouping"
-# and "Commenter". Leave blank '' for no splitting.
-comment_bubble_delimiter = ';'
-
-# Adds additional heading grouping columns and a response column for convenience.
-add_columns = true
-
-# The following format properties are retained in the document
-# unless property is set to 'true'. For example, bold formatting
-# may sometimes be too distracting. Of course, formatting can be
-# edited at a later time as well. For superscript, any footnotes
-# and endnotes are always superscript (toggle is ignored). 
-# {Options: [true, false]}
-[ignore_formatting]
-bold = false
-double_strikethrough = false
-double_underline = false
-italic = false
-strikethrough = false
-subscript = false
-superscript = false
-underline = false
+# Adds additional response column for convenience. [true/false]
+add_columns = false

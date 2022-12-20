@@ -1,5 +1,4 @@
-import re
-
+"""XML namespaces."""
 
 ns = {
     "namespaces": {
@@ -11,11 +10,3 @@ ns = {
         "re": "http://exslt.org/regular-expressions",
     },
 }
-
-
-def uri(tag, namespace="w"):
-    return f"{{{ns['namespaces'][namespace]}}}{tag}"
-
-
-def tag(uri_tag):
-    return re.sub("{.*}", "", uri_tag)

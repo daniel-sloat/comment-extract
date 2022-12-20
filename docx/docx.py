@@ -7,8 +7,8 @@ from zipfile import ZipFile
 from lxml import etree
 
 from docx.comments.comments import Comments
-from docx.styles.styles import Styles
 from docx.notes.notes import Notes
+from docx.styles.styles import Styles
 from logger.logger import log_filename
 
 

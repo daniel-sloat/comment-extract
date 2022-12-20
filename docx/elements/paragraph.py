@@ -1,17 +1,19 @@
-from lxml.etree import XPath
+"""Paragraph object"""
+from lxml import etree
 
-from docx.elements.elements import DOCXElement
+from docx.elements.attrib import get_attrib
+from docx.elements.element_base import DOCXElement
 from docx.elements.run import Run
 from docx.ooxml_ns import ns
 
-from lxml.etree import QName
-
 
 class Paragraph(DOCXElement):
-    def __init__(self, element, group):
+    """Representation of <w:p> (paragraph) element."""
+
+    def __init__(self, element, document):
         super().__init__(element)
-        self._group = group
-        self.runs = [Run(run, self) for run in self.get_runs()]
+        self._doc = document
+        self.runs = [Run(run, self) for run in self.element.xpath("w:r", **ns)]
 
     def __getitem__(self, key):
         return self.runs[key]
@@ -19,58 +21,52 @@ class Paragraph(DOCXElement):
     def __iter__(self):
         return iter(self.runs)
 
+    def __len__(self):
+        return len(self.runs)
+
+    def __str__(self):
+        return self.text
+
+    def insert_run(self, position, element):
+        self.runs.insert(position, Run(element, self._doc))
+
     @property
     def text(self):
         return "".join(run.text for run in self.runs)
 
-    def get_runs(self):
-        return self.element.xpath("w:r", **ns)
-
     @property
     def props(self):
-        return {
-            QName(el).localname: el.attrib for el in self.element.xpath("w:pPr/*", **ns)
-        }
+        return get_attrib(self.element.xpath("w:pPr/*", **ns))
 
     @property
     def glyph_props(self):
-        return {
-            QName(el).localname: el.attrib
-            for el in self.element.xpath("w:pPr/w:rPr/*", **ns)
-        }
+        return get_attrib(self.element.xpath("w:pPr/w:rPr/*", **ns))
 
     @property
     def style(self):
         return self.element.xpath("string(w:pPr/w:pStyle/@w:val)", **ns)
 
     @property
-    def footnotes(self):
-        return [run.footnote for run in self.runs if run.footnote]
-
-    @property
-    def endnotes(self):
-        return [run.endnote for run in self.runs if run.endnote]
-
-    @property
     def style_props(self):
-        styles = self._group._comments._doc.styles
-        return styles.styles_map.get(self.style, {}).get("para", {})
+        return self._doc.styles[self.style].paragraph
 
 
 class CommentParagraph(Paragraph):
-    def __init__(self, element, comment):
-        super().__init__(element, comment)
+    def __init__(self, element, document, comment):
+        super().__init__(element, document)
         self._comment = comment
+        self.runs = self.get_comment_runs()
 
-    @property
-    def runs(self):
-        comment_run = XPath(
+    def get_comment_runs(self):
+        comment_run = etree.XPath(
             "self::w:r[w:t|w:footnoteReference|w:endnoteReference]", **ns
         )
-        comment_start = XPath(
+        comment_start = etree.XPath(
             f"self::w:commentRangeStart[@w:id={self._comment._id}]", **ns
         )
-        comment_end = XPath(f"self::w:commentRangeEnd[@w:id={self._comment._id}]", **ns)
+        comment_end = etree.XPath(
+            f"self::w:commentRangeEnd[@w:id={self._comment._id}]", **ns
+        )
 
         def get_runs(children):
             runs = []
@@ -81,13 +77,7 @@ class CommentParagraph(Paragraph):
                     break
             return runs
 
-        para_elements = (
-            el
-            for el in self.element.xpath(
-                f"w:r|w:commentRangeStart[@w:id={self._comment._id}]|w:commentRangeEnd[@w:id={self._comment._id}]",
-                **ns,
-            )
-        )
+        para_elements = (el for el in self.element)
         comment_start_paragraph = self.element.xpath(
             f"w:commentRangeStart[@w:id={self._comment._id}]", **ns
         )
@@ -98,3 +88,35 @@ class CommentParagraph(Paragraph):
                     return get_runs(para_elements)
         else:
             return get_runs(para_elements)
+
+    # def get_comment_runs(self):
+    #     comment_run = etree.XPath(
+    #         "self::w:r[w:t|w:footnoteReference|w:endnoteReference]", **ns
+    #     )
+    #     comment_start = etree.XPath(
+    #         f"self::w:commentRangeStart[@w:id={self._comment._id}]", **ns
+    #     )
+    #     comment_end = etree.XPath(
+    #         f"self::w:commentRangeEnd[@w:id={self._comment._id}]", **ns
+    #     )
+
+    #     para_elements = (el for el in self.element)
+    #     comment_start_paragraph = self.element.xpath(
+    #         f"w:commentRangeStart[@w:id={self._comment._id}]", **ns
+    #     )
+
+    #     runs = []
+    #     if comment_start_paragraph:
+    #         for element in para_elements:
+    #             if comment_start(element):
+    #                 if comment_run(element):
+    #                     runs.append(Run(element, self))
+    #                 elif comment_end(element):
+    #                     break
+    #     else:
+    #         for element in para_elements:
+    #             if comment_run(element):
+    #                 runs.append(Run(element, self))
+    #             elif comment_end(element):
+    #                 break
+    #     return runs

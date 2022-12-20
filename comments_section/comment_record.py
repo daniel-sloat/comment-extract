@@ -1,4 +1,5 @@
 from comments_section.write_xlsx import WriteComments
+from logger.logger import log_total_record
 
 
 class CommentRecord(list):
@@ -9,10 +10,11 @@ class CommentRecord(list):
     def total(self):
         return sum(len(comments) for comments in self)
 
-    def to_excel(self, output_file, **attrs):
+    @log_total_record
+    def to_excel(self, output_file, **config):
         xlsx = WriteComments(
             filename=output_file,
             comments=self,
-            **attrs,
+            **config,
         )
         xlsx.create_workbook()

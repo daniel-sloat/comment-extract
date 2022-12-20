@@ -1,131 +1,39 @@
-from collections import ChainMap
-from functools import cached_property
-import re
-from docx.elements.elements import BaseDOCXElement
+"""Module for the run <w:r> element."""
+from functools import cache
+
+from docx.elements.attrib import get_attrib
+from docx.elements.element_base import DOCXElement
+from docx.elements.properties import Properties
 from docx.ooxml_ns import ns
 
-from lxml.etree import QName
 
+@cache
+class Run(DOCXElement):
+    """Representation of run <w:r> element."""
 
-class Run(BaseDOCXElement):
-    def __init__(self, parent, element):
-        super().__init(element)
-        self._paragraph = parent
-        
+    def __init__(self, element, paragraph):
+        super().__init__(element)
+        self._parent = paragraph
+        self.text = self.element.xpath("string(w:t)", **ns)
+        self._props = get_attrib(self.element.xpath("w:rPr/*", **ns))
+
+    def __str__(self):
+        return self.text
+
     @property
     def props(self):
-        return {
-            QName(el).localname: el.attrib for el in self.element.xpath("w:rPr/*", **ns)
-        }
+        return Properties(self)
 
-    @property
-    def style(self):
-        return self.element.xpath("string(w:rPr/w:rStyle/@w:val)", **ns)
+    @props.setter
+    def props(self, prop_dict):
+        self._props = prop_dict
 
     @property
     def footnote(self):
-        return self.element.xpath("string(w:footnoteReference/@w:id)", **ns)
+        note_id = self.element.xpath("string(w:footnoteReference/@w:id)", **ns)
+        return self._parent._doc.notes.footnotes.get(note_id, [])
 
     @property
     def endnote(self):
-        return self.element.xpath("string(w:endnoteReference/@w:id)", **ns)
-
-    @cached_property
-    def display_props(self):
-        styles = self._paragraph._group._comments._doc.styles
-        pstyle = self.element.xpath("string(parent::w:p/w:pPr/w:pStyle/@w:val)", **ns)
-        if pstyle:
-            pstyle_run_props = styles.styles_map.get(pstyle, {}).get(
-                "run", {}
-            )  # Returns ChainMap
-            return pstyle_run_props.new_child(
-                styles.styles_map.get(self.style, {}).get("run", {})
-            ).new_child(self.props)
-        return ChainMap(
-            styles.styles_map.get(self.style, {}).get("run", {}), self.props
-        )
-
-    def asdict(self):
-        d = {}
-        if self.bold:
-            d["bold"] = True
-        if self.italic:
-            d["italic"] = True
-        if self.underline:
-            d["underline"] = 1
-        elif self.d_underline:
-            d["underline"] = 2
-        if self.strike:
-            d["font_strikeout"] = True
-        elif self.d_strike:
-            # No double strikethrough in Excel
-            d["font_strikeout"] = True
-            d["font_color"] = "#FF0000"  # #FF0000 = red
-        if self.subscript:
-            d["font_script"] = 2
-        elif self.superscript:
-            d["font_script"] = 1
-        return d
-
-    def _toggled(self, prop):
-        # b, i, strike, dstrike are 'toggle' formats.
-        return prop in self.display_props and (
-            not self.display_props.get(prop, {})
-            or self.display_props.get(prop, {}).get("val") in ("1", "on", "true")
-        )
-
-    @property
-    def bold(self):
-        return self._toggled("b")
-
-    @property
-    def italic(self):
-        return self._toggled("i")
-
-    @property
-    def underline(self):
-        return "u" in self.display_props and not re.search(
-            "[D|d]ouble|^none$", self.display_props.get("u", {}).get("val", "")
-        )
-
-    @property
-    def strike(self):
-        return self._toggled("strike")
-
-    @property
-    def d_underline(self):
-        return "u" in self.display_props and re.search(
-            "[D|d]ouble", self.display_props.get("u", {}).get("val", "")
-        )
-
-    @property
-    def d_strike(self):
-        return self._toggled("dstrike")
-
-    @property
-    def subscript(self):
-        return (
-            "vertAlign" in self.display_props
-            and self.display_props.get("vertAlign", {}).get("val", "") == "subscript"
-        )
-
-    @property
-    def superscript(self):
-        return (
-            "vertAlign" in self.display_props
-            and self.display_props.get("vertAlign", {}).get("val", "") == "superscript"
-        )
-
-    @property
-    def caps(self):
-        return self._toggled("caps")
-
-    @property
-    def fn(self):
-        notes = self._paragraph._group._comments._doc.notes
-        return notes.footnotes.get(self.footnote, "")
-
-    @property
-    def en(self):
-        notes = self._paragraph._group._comments._doc.notes
-        return notes.endnotes.get(self.endnote, "")
+        note_id = self.element.xpath("string(w:endnoteReference/@w:id)", **ns)
+        return self._parent._doc.notes.endnotes.get(note_id, [])

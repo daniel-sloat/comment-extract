@@ -1,16 +1,17 @@
 from pathlib import Path
+
 import xlsxwriter as xl
 
-from comments_section.docx_xlsx_adapter import DOCX_XLSX_Adapter
+from comments_section.adapter import CommentsAdapter
 
 
 class WriteComments:
     def __init__(
-        self, comments, filename="output/comments.xlsx", sheetname="Comments", **attrs
+        self, comments, filename="output/comments.xlsx", sheetname="Comments", **config
     ):
         self.filename = filename
         self.workbook = xl.Workbook(self.filename)
-        self.comments = DOCX_XLSX_Adapter(comments, self.workbook, **attrs)
+        self.comments = CommentsAdapter(comments, self.workbook, **config)
         self.sheetname = sheetname
         self.worksheet = self.workbook.add_worksheet(self.sheetname)
         self.worksheet.add_write_handler(list, self.write_rich_list)
@@ -18,7 +19,7 @@ class WriteComments:
     @staticmethod
     def write_rich_list(worksheet, row, col, data):
         if len(data) == 2:
-            format_, text = data
+            _, text = data
             return worksheet.write(row, col, text)
         else:
             return worksheet.write_rich_string(row, col, *data)
