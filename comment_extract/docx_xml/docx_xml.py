@@ -653,6 +653,7 @@ def read_comments(
     filename_delimiter: str,
     bubble_delimiter: str,
     ignored_styles: dict[str:bool],
+    include_replies: bool
 ) -> list[CommentRecordData]:
     """_summary_
 
@@ -671,7 +672,10 @@ def read_comments(
         doc_comment_integrity_check(docx_xml)
         comment_bounds = get_comment_bounds(docx_xml)
         comment_paragraphs = get_comment_paragraphs(comment_bounds)
-        comment_paragraphs = remove_comment_replies(docx_xml, comment_paragraphs)
+
+        if not include_replies:
+            comment_paragraphs = remove_comment_replies(docx_xml, comment_paragraphs)
+            
         default_props = get_doc_default_style_props(docx_xml)
         style_props = get_styles(docx_xml)
         comment_bubble_data = get_comment_bubble_data(docx_xml, bubble_delimiter)
