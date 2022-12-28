@@ -73,6 +73,7 @@ def extract_comments(
             config_file["filename_delimiter"],
             config_file["comment_bubble_delimiter"],
             config_file["ignore_formatting"],
+            config_file["include_replies"]
         )
         if config_file["response"]["add_columns"]:
             comment_record = add_columns(comment_record)

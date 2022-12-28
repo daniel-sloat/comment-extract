@@ -15,6 +15,9 @@ filename_delimiter = '-'
 # and "Commenter". Leave blank '' for no splitting.
 comment_bubble_delimiter = ';'
 
+# Include replies as new rows that were made to their ancestor comments
+include_replies = false
+
 # The following format properties are retained in the document
 # unless property is set to 'true'. For example, bold formatting
 # may sometimes be too distracting. Of course, formatting can be
