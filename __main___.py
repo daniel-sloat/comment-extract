@@ -13,7 +13,7 @@ def docx_in_folder(folder_path: str):
     return (x for x in Path(folder_path).glob("*.docx") if x.is_file())
 
 
-@logger_init
+@logger_init()
 def main():
     config = toml_config.load()
     comment_record = CommentRecord()

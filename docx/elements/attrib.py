@@ -1,4 +1,3 @@
-import re
 from collections import UserDict
 
 from lxml.etree import QName

@@ -8,8 +8,6 @@ from docx.elements.paragraph import CommentParagraph
 from docx.elements.paragraph_group import ParagraphGroup
 from docx.ooxml_ns import ns
 
-limit_repr_text = Repr()
-
 
 class Comment(ParagraphGroup):
     """Representation of comment."""
@@ -25,7 +23,7 @@ class Comment(ParagraphGroup):
         super().__init__(self.paragraphs)
 
     def __repr__(self):
-        return f"Comment(_id='{self._id}',text={limit_repr_text.repr(self.text)})"
+        return f"Comment(_id='{self._id}',text={Repr().repr(self.text)})"
 
     @property
     def _bounds(self):

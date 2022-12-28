@@ -3,16 +3,19 @@ import functools
 import logging
 
 
-def logger_init(func):
-    def wrapper():
-        logger_start()
-        func()
-        logger_quit()
+def logger_init(print_console=True):
+    def inner(func):
+        def wrapper():
+            logger_start(print_console)
+            func()
+            logger_quit()
 
-    return wrapper
+        return wrapper
+
+    return inner
 
 
-def logger_start():
+def logger_start(print_console=True):
     logging.basicConfig(
         filename="log.log",
         filemode="w",
@@ -20,6 +23,14 @@ def logger_start():
         datefmt=r"%Y-%m-%d %H:%M:%S",
         format="%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s",
     )
+    if print_console:
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            "%(asctime)s (elapsed: %(relativeCreated)dms) [%(levelname)s] %(message)s"
+        )
+        console.setFormatter(formatter)
+        logging.getLogger().addHandler(console)
     logging.info("Logging initialized.")
 
 
