@@ -1,11 +1,11 @@
 """Main document processing script"""
 
 from pathlib import Path
+import tomllib
 
-from comments_section.comment_record import CommentRecord
-from config import toml_config
-from docx.docx import Document
-from logger.logger import logger_init
+from comment_extract.comment_record import CommentRecord
+from docx_comments import Document
+from comment_extract.logger import logger_init
 
 
 def docx_in_folder(folder_path: str):
@@ -15,7 +15,8 @@ def docx_in_folder(folder_path: str):
 
 @logger_init()
 def main():
-    config = toml_config.load()
+    with open("config.toml", "rb") as f:
+        config = tomllib.load(f)
     comment_record = CommentRecord()
     for document in docx_in_folder(config["folder_path"]):
         doc = Document(document)

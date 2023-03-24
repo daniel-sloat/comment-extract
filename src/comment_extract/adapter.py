@@ -1,4 +1,4 @@
-from comments_section.xl_comment import XlComment  # pylint: disable=unused-import
+from comment_extract.xl_comment import XlComment  # pylint: disable=unused-import
 
 
 class XLSXSheetFormats:

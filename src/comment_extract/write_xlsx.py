@@ -2,7 +2,7 @@ from pathlib import Path
 
 import xlsxwriter as xl
 
-from comments_section.adapter import CommentsAdapter
+from comment_extract.adapter import CommentsAdapter
 
 
 class WriteComments:

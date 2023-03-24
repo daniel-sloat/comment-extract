@@ -1,9 +1,9 @@
 import re
 from itertools import groupby
 
-from comments_section.xl_run import XlRun
-from docx.elements.element_maker import paragraph_maker
-from docx.elements.paragraph import Paragraph
+from comment_extract.xl_run import XlRun
+from docx_comments.elements.element_maker import paragraph_maker
+from docx_comments.elements.paragraph import Paragraph
 
 
 def group_runs(runs):
