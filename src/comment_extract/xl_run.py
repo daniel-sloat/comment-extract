@@ -1,15 +1,20 @@
+"""Run DOCX to XLSX"""
+
+from docx_comments.elements.run import Run
+
+
 class XlRun:
     """Adaptor between DOCX Run object and XLSXWriter Format object."""
 
-    def __init__(self, run):
+    def __init__(self, run: Run):
         self._docxrun = run
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self._docxrun.text
 
     @property
-    def props(self):
+    def props(self) -> dict[str, int | bool | str]:
         fmt = {}
         if self._docxrun.props.decode.bold:
             fmt["bold"] = True
