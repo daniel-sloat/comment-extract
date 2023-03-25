@@ -1,9 +1,18 @@
-class FileNameParser:
-    def __init__(self, filename, filename_delimiter=""):
-        self.path = filename
-        self.doc_number, self.commenter_code = self._partition_filename(filename_delimiter)
+"""Extract data from filename"""
 
-    def _partition_filename(self, delimiter):
+from pathlib import Path
+
+
+class FileNameParser:
+    """Parse filename into data elements."""
+
+    def __init__(self, filename: Path, filename_delimiter=""):
+        self.path = filename
+        self.doc_number, self.commenter_code = self._partition_filename(
+            filename_delimiter
+        )
+
+    def _partition_filename(self, delimiter: str):
         if delimiter:
             doc_number, _, commenter_code = self.path.stem.partition(delimiter)
             if doc_number.isnumeric():

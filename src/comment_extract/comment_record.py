@@ -1,8 +1,12 @@
-from comment_extract.write_xlsx import WriteComments
+"""Comment record"""
+
 from comment_extract.logger import log_total_record
+from comment_extract.write_xlsx import WriteComments
 
 
 class CommentRecord(list):
+    """The comment record, subclassed from list."""
+
     def __repr__(self):
         return f"CommentRecord(file_count={len(self)},total_comments={self.total})"
 

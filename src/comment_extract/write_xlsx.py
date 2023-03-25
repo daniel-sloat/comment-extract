@@ -1,13 +1,23 @@
+"""Write comments to workbook."""
+
 from pathlib import Path
 
 import xlsxwriter as xl
+from docx_comments.comments.comments import Comments
+from xlsxwriter.worksheet import Worksheet
 
 from comment_extract.adapter import CommentsAdapter
 
 
 class WriteComments:
+    """Create comments workbook."""
+
     def __init__(
-        self, comments, filename="output/comments.xlsx", sheetname="Comments", **config
+        self,
+        comments: Comments,
+        filename="output/comments.xlsx",
+        sheetname="Comments",
+        **config,
     ):
         self.filename = filename
         self.workbook = xl.Workbook(self.filename)
@@ -17,7 +27,7 @@ class WriteComments:
         self.worksheet.add_write_handler(list, self.write_rich_list)
 
     @staticmethod
-    def write_rich_list(worksheet, row, col, data):
+    def write_rich_list(worksheet: Worksheet, row, col, data):
         if len(data) == 2:
             _, text = data
             return worksheet.write(row, col, text)

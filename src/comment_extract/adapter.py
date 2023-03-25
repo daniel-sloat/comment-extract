@@ -1,7 +1,18 @@
+"""Comments to XLSX adapter"""
+
+from typing import TYPE_CHECKING
+
+from xlsxwriter.workbook import Workbook
+
 from comment_extract.xl_comment import XlComment  # pylint: disable=unused-import
+
+if TYPE_CHECKING:
+    from comment_extract.comment_record import CommentRecord
 
 
 class XLSXSheetFormats:
+    """Mixin for workbook formats."""
+
     # pylint: disable=no-member
 
     hidden = {"hidden": True}
@@ -37,7 +48,15 @@ class XLSXSheetFormats:
 
 
 class CommentsAdapter(XLSXSheetFormats):
-    def __init__(self, comment_record, workbook, add_columns=False, **config):
+    """Comments adapter from DOCX to XLSX."""
+
+    def __init__(
+        self,
+        comment_record: "CommentRecord",
+        workbook: Workbook,
+        add_columns: bool = False,
+        **config,
+    ):
         self.comment_record = comment_record
         self.workbook = workbook
         self.add_columns = add_columns
@@ -72,11 +91,11 @@ class CommentsAdapter(XLSXSheetFormats):
         total_count = 0
         for comments in self.comment_record:
             doc_comment_count = 0
-            for comment in comments:
+            for comment in comments:  # pylint: disable=unused-variable
                 comment_data = {}
                 total_count += 1
                 doc_comment_count += 1
                 for col_name, expr, _ in self.sheet_design():
-                    comment_data[col_name] = eval(expr)
+                    comment_data[col_name] = eval(expr)  # pylint: disable=eval-used
                 if comment_data["Referenced Text"]:  # Do not include empty comments
                     yield comment_data

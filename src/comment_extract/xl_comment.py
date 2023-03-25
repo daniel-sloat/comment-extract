@@ -1,9 +1,15 @@
+"""Prepare comment for Excel"""
+
 import re
 from itertools import groupby
 
-from comment_extract.xl_run import XlRun
+from docx_comments.comments.comment import Comment
+from docx_comments.docx import Document
 from docx_comments.elements.element_maker import paragraph_maker
 from docx_comments.elements.paragraph import Paragraph
+from xlsxwriter.workbook import Workbook
+
+from comment_extract.xl_run import XlRun
 
 
 def group_runs(runs):
@@ -16,9 +22,9 @@ def group_runs(runs):
 class XlComment:
     """Adapter between DOCX Comment object and XLSXWriter"""
 
-    def __init__(self, comment, workbook, **config):
+    def __init__(self, comment: Comment, workbook: Workbook, **config):
         self._docxcomment = comment
-        self._doc = self._docxcomment._parent._doc
+        self._doc: Document = self._docxcomment._parent._doc
         self.workbook = workbook
         self.config = config
 
@@ -37,7 +43,7 @@ class XlComment:
         return formatted_runs
 
     @staticmethod
-    def _clean_paragraph_text(runs):
+    def _clean_paragraph_text(runs: list[tuple[dict, str]]):
         for run in runs:
             props, text = run
             # Attempt to remove leading and trailing whitespace at the beginngin and
