@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from xlsxwriter.workbook import Workbook
 
-from comment_extract.xl_comment import XlComment  # pylint: disable=unused-import
+from comment_extract.write.xl_comment import XlComment  # pylint: disable=unused-import
 
 if TYPE_CHECKING:
     from comment_extract.comment_record import CommentRecord

@@ -1,7 +1,7 @@
 """Comment record"""
 
-from comment_extract.logger import log_total_record
-from comment_extract.write_xlsx import WriteComments
+from comment_extract.logger.logger import log_total_record
+from comment_extract.write.write_xlsx import WriteComments
 
 
 class CommentRecord(list):

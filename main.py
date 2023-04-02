@@ -6,7 +6,7 @@ import tomllib
 from docx_comments import Document
 
 from comment_extract import CommentRecord
-from comment_extract.logger import logger_init
+from comment_extract.logger.logger import logger_init
 
 
 def docx_in_folder(folder_path: str):

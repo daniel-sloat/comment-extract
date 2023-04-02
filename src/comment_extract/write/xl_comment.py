@@ -9,7 +9,7 @@ from docx_comments.elements.element_maker import paragraph_maker
 from docx_comments.elements.paragraph import Paragraph
 from xlsxwriter.workbook import Workbook
 
-from comment_extract.xl_run import XlRun
+from comment_extract.write.xl_run import XlRun
 
 
 def group_runs(runs):

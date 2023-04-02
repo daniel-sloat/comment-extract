@@ -6,7 +6,7 @@ import xlsxwriter as xl
 from docx_comments.comments.comments import Comments
 from xlsxwriter.worksheet import Worksheet
 
-from comment_extract.adapter import CommentsAdapter
+from comment_extract.write.adapter import CommentsAdapter
 
 
 class WriteComments:
