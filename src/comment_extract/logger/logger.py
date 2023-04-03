@@ -66,7 +66,9 @@ def log_total_record(func):
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
-        logging.info("Total of %s comments from %s documents.", self.total, len(self))
+        logging.info(
+            "Total of %s comments from %s documents.", self.total, len(self.comments)
+        )
         return result
 
     return wrapper

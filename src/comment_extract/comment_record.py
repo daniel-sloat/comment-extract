@@ -3,22 +3,22 @@
 from comment_extract.logger.logger import log_total_record
 from comment_extract.write.write_xlsx import WriteComments
 
+from docx_comments.comments.comments import Comments
 
-class CommentRecord(list):
-    """The comment record, subclassed from list."""
 
-    def __repr__(self):
-        return f"CommentRecord(file_count={len(self)},total_comments={self.total})"
+class CommentRecord:
+    def __init__(self, comments: Comments):
+        self.comments = comments
 
     @property
     def total(self):
-        return sum(len(comments) for comments in self)
+        return sum(len(comments) for comments in self.comments)
 
     @log_total_record
-    def to_excel(self, output_file, **config):
+    def to_excel(self, output_file: str, **config):
         xlsx = WriteComments(
             filename=output_file,
-            comments=self,
+            comments=self.comments,
             **config,
         )
         xlsx.create_workbook()

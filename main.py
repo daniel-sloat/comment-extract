@@ -19,11 +19,13 @@ def main():
     with open("config.toml", "rb") as toml:
         config = tomllib.load(toml)
 
-    comment_record = CommentRecord()
+    all_comments = []
     for document in docx_in_folder(config["folder_path"]):
         doc = Document(document)
         comments = doc.comments
-        comment_record.append(comments)
+        all_comments.append(comments)
+
+    comment_record = CommentRecord(all_comments)
     comment_record.to_excel(**config)
 
 
