@@ -1,39 +1,9 @@
-# Provide relative or absolute path to directory
-# Example: 'folder\folder' or 'C:\Users\user\Documents'
+# Provide relative or absolute path to directory containing .docx files with comments.
+# Example: "folder\folder" or "C:\Users\user\Documents"
 folder_path = 'tests'
 
-# Parses filename into two, using the following delimiter.
-# For example, with "-" delimiter, from "100-Filename.docx" 
-# to "100" and "Filename". Leave blank '' for no parsing.
-filename_delimiter = '-'
+# Specify output xlsx file.
+output_file = 'output/comments.xlsx'
 
-# Text within a comment bubble is typically used to identify
-# groupings of comments. When there are multiple commenters per 
-# file, and you wish to identify the commenters individually, 
-# the following delimiter will split comment bubble text into two.
-# For example, "Grouping; Commenter" will be split into "Grouping"
-# and "Commenter". Leave blank '' for no splitting.
-comment_bubble_delimiter = ';'
-
-# Include replies as new rows that were made to their ancestor comments
-include_replies = false
-
-# The following format properties are retained in the document
-# unless property is set to 'true'. For example, bold formatting
-# may sometimes be too distracting. Of course, formatting can be
-# edited at a later time as well. For superscript, any footnotes
-# and endnotes are always superscript (toggle is ignored). 
-# {Options: [true, false]}
-[ignore_formatting]
-bold = false
-double_strikethrough = false
-double_underline = false
-italic = false
-strikethrough = false
-subscript = false
-superscript = false
-underline = false
-
-[response]
-# Adds additional heading grouping columns and a response column for convenience.
-add_columns = true
+# Adds additional response column for convenience. [true/false]
+add_columns = false

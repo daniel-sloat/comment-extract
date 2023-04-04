@@ -1,6 +1,7 @@
-__pycache__
-.env
-output
-input
+__pycache__/
+input/
+output/
 config.toml
 *.log
+.env
+*.egg-info

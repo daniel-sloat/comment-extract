@@ -17,12 +17,10 @@ One or more docx files that have comments identified within them.
 An xlsx file that includes:
 - Formatted text of the comment from the referenced document text
   - Formatting includes bold, italic, underline, double underline, strikethrough, double strikethrough, subscript, and superscript. All other formatting is discarded (e.g., font type, size, etc.). Double-strikethrough is not supported in Excel, so a combination of strikethrough and red-text is used to denote double-strikethrough text.
-  - If the referenced document text contains footnote or endnote references, the references are appended to the end of the referenced document text. Footnotes and endnotes are combined, and for each comment, always begin at 1.
-- Filename (parsing filename using one delimiter)
-  - Provides parsing option to split filename into two (e.g., a document number and document code or author)
+  - If the referenced document text contains footnotes or endnotes, the notes are appended to the end of the referenced document text. For each comment, footnotes and endnotes are combined and always begin at 1.
+- Filename
 - Comment author, initials, date
-- Comment bubble text 
-  - Provides parsing option to split comment bubble text into two (default assumes the first part is a broad grouping (heading 1) and the second part replaces the parsed document code from the filename)
+- Comment bubble text
 - Comment number within document and total comment number out of all documents
 
 ## How to Use
@@ -34,18 +32,16 @@ An xlsx file that includes:
     - Navigate to cloned/extracted folder.
     - Enter:
 
-          python3.10 -m venv env
+          python -m venv env
           env\Scripts\activate
           pip install -r requirements.txt
           
 - Customize configuration file (config.toml) in text-editer:
   - IMPORTANT: Rename config.SAMPLE.toml to config.toml!
   - Enter path to folder containing one or more docx files with comments (absolute or relative path)
-  - Enter delimiters (for filepath and comment bubble text, if using)
-  - If certain formatting should be ignored, specify them. All formatting can be turned off, if desired.
 - Run the script in the terminal:  
 
-        python comment_extract.py
+        python __main__.py
 
 - The output file will be placed in the output folder, unless customized in the configuration file.
 
