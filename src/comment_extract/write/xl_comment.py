@@ -7,6 +7,7 @@ from docx_comments.comments.comment import Comment
 from docx_comments.docx import Document
 from docx_comments.elements.element_maker import paragraph_maker
 from docx_comments.elements.paragraph import Paragraph
+from docx_comments.notes.note import Note
 from xlsxwriter.workbook import Workbook
 
 from comment_extract.write.xl_run import XlRun
@@ -61,7 +62,7 @@ class XlComment:
 
             yield props, text
 
-    def note_handler(self, note_data, note_num):
+    def note_handler(self, note_data: Note, note_num: str):
         superscript = {"vertAlign": {"val": "superscript"}}
         for para_no, paragraph in enumerate(note_data.paragraphs):
             runs = []
