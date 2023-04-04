@@ -1,13 +1,16 @@
 """Comment record"""
 
+from typing import TYPE_CHECKING
+
 from comment_extract.logger.logger import log_total_record
 from comment_extract.write.write_xlsx import WriteComments
 
-from docx_comments.comments.comments import Comments
+if TYPE_CHECKING:
+    from docx_comments.comments.comments import Comments
 
 
 class CommentRecord:
-    def __init__(self, comments: Comments):
+    def __init__(self, comments: "Comments"):
         self.comments = comments
 
     @property
