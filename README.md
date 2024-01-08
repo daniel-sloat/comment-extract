@@ -37,7 +37,7 @@ An xlsx file that includes:
           pip install -r requirements.txt
           
 - Customize configuration file (config.toml) in text-editer:
-  - __IMPORTANT__: Rename config.SAMPLE.toml to config.toml!
+  - __IMPORTANT__: Rename config.EXAMPLE.toml to config.toml!
   - Enter path to folder containing one or more docx files with comments (absolute or relative path)
 - Run the script in the terminal:  
 
