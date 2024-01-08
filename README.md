@@ -25,7 +25,7 @@ An xlsx file that includes:
 
 ## How to Use
 
-- Use Python 3.10+
+- Use Python 3.11+
 - Clone the repository or download the repository as a zip file and extract.
 - Setup virtual environment (Windows-specific):
   - Using terminal (e.g., Command Prompt, PowerShell):
@@ -37,13 +37,13 @@ An xlsx file that includes:
           pip install -r requirements.txt
           
 - Customize configuration file (config.toml) in text-editer:
-  - IMPORTANT: Rename config.SAMPLE.toml to config.toml!
+  - __IMPORTANT__: Rename config.SAMPLE.toml to config.toml!
   - Enter path to folder containing one or more docx files with comments (absolute or relative path)
 - Run the script in the terminal:  
 
         python __main__.py
 
-- The output file will be placed in the output folder, unless customized in the configuration file.
+- The output file will be placed in the _output_ folder, unless customized in the configuration file.
 
 ## Similar Repositories
 
