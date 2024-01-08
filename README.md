@@ -6,7 +6,7 @@ Does not require Microsoft Word or Excel be installed.
 
 ## Examples
 
-Example input files can be found under 'tests'. Example output can be found in 'output'.
+Example input files can be found under 'tests'. Run the configuration file as-is (after renaming it to config.toml) to run the script on the files in the tests folder to obtain an example output.
 
 ## Input
 
