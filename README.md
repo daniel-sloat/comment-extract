@@ -41,7 +41,7 @@ An xlsx file that includes:
   - Enter path to folder containing one or more docx files with comments (absolute or relative path)
 - Run the script in the terminal:  
 
-        python __main__.py
+        python main.py
 
 - The output file will be placed in the _output_ folder, unless customized in the configuration file.
 
