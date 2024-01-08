@@ -16,7 +16,7 @@ license = {file = "LICENSE"}
 name = "comment-extract"
 readme = "README.md"
 requires-python = ">=3.11"
-version = "2023.04.02"
+version = "2024.01.08"
 
 [project.optional-dependencies]
 dev = [
